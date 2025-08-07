@@ -3,7 +3,9 @@ import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
-  constructor() {
+  private users: Array<{ userId: number; username: string; password: string }>;
+
+  constructor(private prismaService: PrismaService) {
     this.users = [
       {
         userId: 1,
@@ -18,7 +20,7 @@ export class UsersService {
     ];
   }
 
-  async findOne(username) {
-    return this.users.find((user) => user.username === username);
+  async findOne(username: string) {
+    return await this.users.find((user) => user.username === username);
   }
 }
