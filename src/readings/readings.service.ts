@@ -56,7 +56,7 @@ export class ReadingsService {
     }
 
     // 5. Inserindo em massa
-    const result = await this.prisma.sensorReading.createMany({
+    const result = await this.prisma.reading.createMany({
       data: readingsToCreate,
     });
 
