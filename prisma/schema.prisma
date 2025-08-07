@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  output = "../generated/prisma"
 }
 
 datasource db {
@@ -20,49 +20,73 @@ model User {
   name      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  passwordHash String @map("password_hash")
 
-  @@map("users")
+  meshes    Mesh[]
+
+  @@map("user")
 }
 
 model Mesh {
-  id        String      @id @default(uuid())
+  id        String   @id @default(uuid())
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  sensors   Sensor[]
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
 
-  @@map("meshes")
+  // Dispositivos ESP
+  workers   Worker[]
+  controllers Controller[]
+
+  @@map("mesh")
 }
 
-model Sensor {
-  id        String    @id @default(uuid())
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  mesh      String    @map("mesh_id")
-
-  macAddress String   @unique @map("mac_address")
-  name       String
-  lat        Float
-  long       Float
+model Controller {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  macAddress  String   @unique @map("mac_address")
+  name        String
+  lat         Float
+  long        Float
   description String?
 
-  @@map("sensors")
+  meshId      String   @map("mesh_id")
+  mesh        Mesh     @relation(fields: [meshId], references: [id])
 
-  meshRel    Mesh        @relation(fields: [mesh], references: [id])
-  readings   SensorReading[]
+  @@map("controller")
 }
 
-model SensorReading {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  sensorId  String
-  sensor    Sensor   @relation(fields: [sensorId], references: [id])
+model Worker {
+  id          String    @id @default(uuid())
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  macAddress  String    @unique @map("mac_address")
+  name        String
+  lat         Float
+  long        Float
+  description String?
 
+  meshId      String    @map("mesh_id")
+  mesh        Mesh      @relation(fields: [meshId], references: [id])
+
+  readings    Reading[]
+
+  @@map("worker")
+}
+
+model Reading {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
   temperature Float
   humidity    Float
   readingTime DateTime @map("reading_time")
 
-  @@map("sensor_readings")
+  workerId    String
+  worker      Worker   @relation(fields: [workerId], references: [id])
+
+  @@map("reading")
 }
