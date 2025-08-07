@@ -69,10 +69,19 @@ log "Running Bun $(bun --revision)"
 bun install || handle_error "Failed to install dependencies"
 
 # Run database migrations and generate Prisma client
+log "Running Prisma operations..."
 bunx prisma migrate deploy || handle_error "Failed to run Prisma migrations"
+
+# Clean and regenerate Prisma client
+log "Cleaning and regenerating Prisma client..."
+rm -rf generated/prisma || log "No existing generated client to remove"
 bunx prisma generate || handle_error "Failed to generate Prisma client"
 
-bun update || handle_error "Failed to update dependencies"
+# Verify client was generated
+if [ ! -d "generated/prisma" ]; then
+  handle_error "Prisma client was not generated properly"
+fi
+log "Prisma client generated successfully"
 
 # Build application
 log "Building application..."
