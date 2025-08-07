@@ -11,7 +11,9 @@ export class ReadingsService {
   async createSensorReadings(readings: ReadingDataPointDto[]) {
     // 1. Pega os MAC únicos do json recebido
     const macAddresses = [...new Set(readings.map((r) => r.mac))];
-    this.logger.log(`Recebido dados dos seguintes MACs: ${macAddresses.join(', ')}`);
+    this.logger.log(
+      `Recebido dados dos seguintes MACs: ${macAddresses.join(', ')}`,
+    );
 
     // 2. Encontra os workers com esses endereços no banco
     const workers = await this.prisma.worker.findMany({
@@ -28,7 +30,9 @@ export class ReadingsService {
 
     // 3. Faz um mapa do mac para o worker
     const workerIdMap = new Map(workers.map((w) => [w.macAddress, w.id]));
-    this.logger.log(`Encontrados ${workerIdMap.size} trabalhadores registrados no banco de dados.`);
+    this.logger.log(
+      `Encontrados ${workerIdMap.size} trabalhadores registrados no banco de dados.`,
+    );
 
     // 4. Monta os dados pra inserir no banco
     const readingsToCreate = readings
@@ -45,13 +49,15 @@ export class ReadingsService {
           temperature: reading.temp,
           humidity: reading.hum,
           readingTime: new Date(),
-          workerId: workerId
+          workerId: workerId,
         };
       })
       .filter((r) => r !== null);
 
     if (readingsToCreate.length === 0) {
-      this.logger.log('Nenhum dado válido para inserir. Todos os MACs não registrados.');
+      this.logger.log(
+        'Nenhum dado válido para inserir. Todos os MACs não registrados.',
+      );
       return { createdCount: 0, unregisteredCount: readings.length };
     }
 
