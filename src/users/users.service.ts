@@ -73,4 +73,34 @@ export class UsersService {
     const { passwordHash, ...result } = user;
     return result;
   }
+
+  async update(id: string, updateUserDto: { name?: string; email?: string }) {
+    // Build update data object with only provided fields
+    const updateData: any = {};
+
+    if (updateUserDto.name !== undefined) {
+      updateData.name = updateUserDto.name;
+    }
+    
+    if (updateUserDto.email !== undefined) {
+      updateData.email = updateUserDto.email;
+    }
+
+    // If no fields to update, throw an error
+    if (Object.keys(updateData).length === 0) {
+      throw new Error('No fields provided for update');
+    }
+
+    return await this.prismaService.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
 }
