@@ -1,18 +1,24 @@
 import { PrismaClient } from '@prisma/client';
+import * as argon2 from 'argon2';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Starting seed...');
 
+  // Hash the password
+  const hashedPassword = await argon2.hash('password123');
+
   // Create a test user
   const user = await prisma.user.upsert({
     where: { email: 'test@example.com' },
-    update: {},
+    update: {
+      passwordHash: hashedPassword,
+    },
     create: {
       email: 'test@example.com',
       name: 'Test User',
-      passwordHash: '$2b$10$example.hash.here', // In production, use proper bcrypt hash
+      passwordHash: hashedPassword,
     },
   });
 
@@ -90,7 +96,7 @@ async function main() {
   console.log('✅ Created workers:', workers.map(w => w.name).join(', '));
 
   // Create sample readings for each worker
-  const readings = [];
+  const readings: any[] = [];
   for (const worker of workers) {
     // Create 5 sample readings for each worker
     for (let i = 0; i < 5; i++) {
@@ -109,6 +115,9 @@ async function main() {
   console.log('✅ Created readings:', readings.length);
 
   console.log('🎉 Seed completed successfully!');
+  console.log('📧 Test user credentials:');
+  console.log('   Email: test@example.com');
+  console.log('   Password: password123');
 }
 
 main()
