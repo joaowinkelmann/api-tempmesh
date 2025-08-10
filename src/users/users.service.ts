@@ -52,8 +52,8 @@ export class UsersService {
         id: true,
         email: true,
         name: true,
-        createdAt: true,
-        updatedAt: true,
+        insDthr: true,
+        altDthr: true,
       },
     });
   }
@@ -81,7 +81,7 @@ export class UsersService {
     if (updateUserDto.name !== undefined) {
       updateData.name = updateUserDto.name;
     }
-    
+
     if (updateUserDto.email !== undefined) {
       updateData.email = updateUserDto.email;
     }
@@ -98,8 +98,8 @@ export class UsersService {
         id: true,
         email: true,
         name: true,
-        createdAt: true,
-        updatedAt: true,
+        altDthr: true,
+        insDthr: true,
       },
     });
   }

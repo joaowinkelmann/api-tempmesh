@@ -7,9 +7,22 @@ import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
 import { UsersModule } from './users/users.module';
 import { HealthModule } from './health/health.module';
+import { MeshesModule } from './meshes/meshes.module';
+import { ZonesModule } from './zones/zones.module';
+import { ControllersModule } from './controllers/controllers.module';
+import { WorkersModule } from './workers/workers.module';
 
 @Module({
-  imports: [ReadingsModule, AuthModule, UsersModule, HealthModule],
+  imports: [
+    ReadingsModule,
+    AuthModule,
+    UsersModule,
+    HealthModule,
+    MeshesModule,
+    ZonesModule,
+    ControllersModule,
+    WorkersModule,
+  ],
   controllers: [AppController],
   providers: [
     AppService,

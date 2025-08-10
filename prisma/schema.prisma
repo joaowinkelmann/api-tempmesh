@@ -14,78 +14,118 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  passwordHash String @map("password_hash")
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String?
+  insDthr      DateTime @default(now()) @map("ins_dthr")
+  altDthr      DateTime @updatedAt @map("alt_dthr")
+  passwordHash String   @map("password_hash")
 
-  meshes    Mesh[]
+  meshes Mesh[]
 
   @@map("user")
 }
 
 model Mesh {
-  id        String   @id @default(uuid())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id      String   @id @default(uuid())
+  name    String
+  insDthr DateTime @default(now()) @map("ins_dthr")
+  altDthr DateTime @updatedAt @map("alt_dthr")
 
-  userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Dispositivos ESP
-  workers   Worker[]
-  controllers Controller[]
+  // Uma Mesh tem várias Zonas
+  zones Zone[]
 
   @@map("mesh")
 }
 
+// Representa uma área poligonal específica dentro de uma Mesh para agrupar dispositivos
+model Zone {
+  id      String   @id @default(uuid())
+  name    String
+  insDthr DateTime @default(now()) @map("ins_dthr")
+  altDthr DateTime @updatedAt @map("alt_dthr")
+
+  // Vértices que definem a forma do polígono em um mapa virtual.
+  // Armazenado como JSON para ser flexível, por exemplo, [{ "x": 0, "y": 50 }, { "x": 100, "y": 50 }, ...]
+  vertices Json
+
+  // Cada Zone pertence a uma Mesh somente
+  meshId String @map("mesh_id")
+  mesh   Mesh   @relation(fields: [meshId], references: [id], onDelete: Cascade)
+
+  // Os dispositvos pertenecem a uma Zone
+  workers     Worker[]
+  controllers Controller[]
+
+  @@map("zone")
+}
+
 model Controller {
   id          String   @id @default(uuid())
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  insDthr     DateTime @default(now()) @map("ins_dthr")
+  altDthr     DateTime @updatedAt @map("alt_dthr")
   macAddress  String   @unique @map("mac_address")
   name        String
-  lat         Float
-  long        Float
   description String?
 
-  meshId      String   @map("mesh_id")
-  mesh        Mesh     @relation(fields: [meshId], references: [id])
+  x Float
+  y Float
+
+  status DeviceStatus @default(PENDING)
+
+  zoneId String? @map("zone_id")
+  zone   Zone?   @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+
+  readings Reading[]
 
   @@map("controller")
 }
 
 model Worker {
-  id          String    @id @default(uuid())
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  macAddress  String    @unique @map("mac_address")
+  id          String   @id @default(uuid())
+  insDthr     DateTime @default(now()) @map("ins_dthr")
+  altDthr     DateTime @updatedAt @map("alt_dthr")
+  macAddress  String   @unique @map("mac_address")
   name        String
-  lat         Float
-  long        Float
   description String?
 
-  meshId      String    @map("mesh_id")
-  mesh        Mesh      @relation(fields: [meshId], references: [id])
+  x Float
+  y Float
 
-  readings    Reading[]
+  status DeviceStatus @default(PENDING)
+
+  zoneId String? @map("zone_id")
+  zone   Zone?   @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+
+  readings Reading[]
 
   @@map("worker")
 }
 
+// Representa uma leitura de sensores
 model Reading {
   id          String   @id @default(uuid())
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  temperature Float
-  humidity    Float
+  insDthr     DateTime @default(now()) @map("ins_dthr")
+  altDthr     DateTime @updatedAt @map("alt_dthr")
+  temperature Float?
+  humidity    Float?
   readingTime DateTime @map("reading_time")
 
-  workerId    String
-  worker      Worker   @relation(fields: [workerId], references: [id])
+  // Uma leitura pode ser associada tanto a um Worker quanto a um Controller
+  workerId String?
+  worker   Worker? @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  controllerId String?
+  controller   Controller? @relation(fields: [controllerId], references: [id], onDelete: Cascade)
 
   @@map("reading")
+}
+
+enum DeviceStatus {
+  PENDING // Aguardando ativação/configuração após recém descoberto e adicionado à Mesh automaticamente.
+  ACTIVE // Configurado e enviando dados.
+  DISABLED // Manualmente desativado
 }

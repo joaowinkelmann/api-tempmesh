@@ -1,5 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
-import { HealthCheckService, HealthCheck, PrismaHealthIndicator } from '@nestjs/terminus';
+import {
+  HealthCheckService,
+  HealthCheck,
+  PrismaHealthIndicator,
+} from '@nestjs/terminus';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Public } from 'src/auth/public.decorator';
 
@@ -8,7 +12,7 @@ export class HealthController {
   constructor(
     private health: HealthCheckService,
     private prismaHealthIndicator: PrismaHealthIndicator,
-    private prismaService: PrismaService
+    private prismaService: PrismaService,
   ) {}
 
   @Public()
@@ -16,7 +20,10 @@ export class HealthController {
   @HealthCheck()
   healthCheck() {
     return this.health.check([
-      () => this.prismaHealthIndicator.pingCheck('prisma', this.prismaService, { timeout: 3000 })
+      () =>
+        this.prismaHealthIndicator.pingCheck('prisma', this.prismaService, {
+          timeout: 3000,
+        }),
     ]);
   }
 }

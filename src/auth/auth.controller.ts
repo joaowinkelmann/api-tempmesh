@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Post,
   Request,
   UseGuards,
@@ -12,6 +13,7 @@ import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
 import { SignInDto } from './dto/signin.dto';
 import { Public } from './public.decorator';
+import { GetProfileDto } from './dto/getprofile.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -26,7 +28,9 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
+  getProfile(@Request() req: GetProfileDto) {
+    if (!req.user) {
+      throw new NotFoundException('User not found');
+    }
   }
 }
