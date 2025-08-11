@@ -1,1 +1,3 @@
-export class CreateMeshDto {}
+export class CreateMeshDto {
+  name: string;
+}

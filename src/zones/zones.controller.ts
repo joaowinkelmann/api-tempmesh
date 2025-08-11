@@ -27,16 +27,16 @@ export class ZonesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.zonesService.findOne(+id);
+    return this.zonesService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateZoneDto: UpdateZoneDto) {
-    return this.zonesService.update(+id, updateZoneDto);
+    return this.zonesService.update(id, updateZoneDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.zonesService.remove(+id);
+    return this.zonesService.remove(id);
   }
 }
