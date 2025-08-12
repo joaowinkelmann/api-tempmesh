@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Redirect } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Public } from './auth/public.decorator';
 
@@ -8,7 +8,9 @@ export class AppController {
 
   @Public()
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Redirect('/docs', 302)
+  getHello() {
+    // return this.appService.getHello();
+    // Agora redireciona para a documentação em /docs
   }
 }
