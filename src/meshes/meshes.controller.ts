@@ -13,11 +13,15 @@ import { MeshesService } from './meshes.service';
 import { CreateMeshDto } from './dto/create-mesh.dto';
 import { UpdateMeshDto } from './dto/update-mesh.dto';
 import { AuthGuard } from '../auth/auth.guard';
+import { ZonesService } from '../zones/zones.service';
 
 @UseGuards(AuthGuard)
 @Controller('meshes')
 export class MeshesController {
-  constructor(private readonly meshesService: MeshesService) {}
+  constructor(
+    private readonly meshesService: MeshesService,
+    private readonly zonesService: ZonesService,
+  ) {}
 
   @Post()
   async create(@Body() createMeshDto: CreateMeshDto, @Request() req) {
@@ -46,5 +50,10 @@ export class MeshesController {
   @Delete(':id')
   async remove(@Param('id') id: string, @Request() req) {
     return this.meshesService.remove(id, req.user.sub);
+  }
+
+  @Get(':meshId/zones')
+  async findZones(@Param('meshId') meshId: string) {
+    return this.zonesService.findByMesh(meshId);
   }
 }

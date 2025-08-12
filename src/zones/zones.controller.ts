@@ -39,4 +39,9 @@ export class ZonesController {
   remove(@Param('id') id: string) {
     return this.zonesService.remove(id);
   }
+
+  @Get('/mesh/:meshId')
+  findByMesh(@Param('meshId') meshId: string) {
+    return this.zonesService.findByMesh(meshId);
+  }
 }
