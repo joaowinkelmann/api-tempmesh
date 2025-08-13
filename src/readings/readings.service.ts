@@ -16,11 +16,12 @@ export class ReadingsService {
     );
 
     // 2. Encontra os workers com esses endereços no banco
-    const workers = await this.prisma.worker.findMany({
+    const workers = await this.prisma.device.findMany({
       where: {
         macAddress: {
           in: macAddresses,
         },
+        role: 'WORKER', // Filtra apenas dispositivos com role WORKER
       },
       select: {
         id: true,

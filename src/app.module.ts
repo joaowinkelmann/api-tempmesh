@@ -9,8 +9,7 @@ import { UsersModule } from './users/users.module';
 import { HealthModule } from './health/health.module';
 import { MeshesModule } from './meshes/meshes.module';
 import { ZonesModule } from './zones/zones.module';
-import { ControllersModule } from './controllers/controllers.module';
-import { WorkersModule } from './workers/workers.module';
+import { DevicesModule } from './devices/devices.module';
 
 @Module({
   imports: [
@@ -20,8 +19,7 @@ import { WorkersModule } from './workers/workers.module';
     HealthModule,
     MeshesModule,
     ZonesModule,
-    ControllersModule,
-    WorkersModule,
+    DevicesModule,
   ],
   controllers: [AppController],
   providers: [

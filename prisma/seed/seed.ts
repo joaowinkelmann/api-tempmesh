@@ -1,10 +1,10 @@
-import { PrismaClient, DeviceStatus } from '@prisma/client';
+import { PrismaClient, DeviceStatus, DeviceRole } from '@prisma/client';
 import * as argon2 from 'argon2';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting seed...');
+  console.log('🌱 Iniciando seed...');
 
   // 1. Usuário de teste
   const hashedPassword = await argon2.hash('password123');
@@ -19,7 +19,7 @@ async function main() {
       passwordHash: hashedPassword,
     },
   });
-  console.log('✅ Created user:', user.email);
+  console.log('✅ Criado usuário:', user.email);
 
   // 2. Cria um mesh pro cara
   const mesh = await prisma.mesh.upsert({
@@ -27,11 +27,11 @@ async function main() {
     update: {},
     create: {
       id: 'mesh-1',
-      name: 'Office Temperature Network',
+      name: 'Mesh dos Guris',
       userId: user.id,
     },
   });
-  console.log('✅ Created mesh:', mesh.name);
+  console.log('✅ Criada mesh:', mesh.name);
 
   // 3. Cria uma Zone dentro dessa Mesh
   const zone = await prisma.zone.upsert({
@@ -39,9 +39,8 @@ async function main() {
     update: {},
     create: {
       id: 'zone-1',
-      name: 'Main Office Area',
+      name: 'Planalto Central',
       meshId: mesh.id,
-      // Example vertices for a rectangular zone
       vertices: [
         { x: 0, y: 0 },
         { x: 100, y: 0 },
@@ -50,72 +49,77 @@ async function main() {
       ],
     },
   });
-  console.log('✅ Created zone:', zone.name);
+  console.log('✅ Criada zone:', zone.name);
 
-  // 4. Create an ACTIVE Controller assigned to the Zone
-  const controller = await prisma.controller.upsert({
-    where: { macAddress: '00:11:22:33:44:55' },
+  // 4. Cria um controlador ativo para a zone (Device com role CONTROLLER)
+  const controller = await prisma.device.upsert({
+    where: { macAddress: '24:58:7C:CC:E5:B4' },
     update: {},
     create: {
-      macAddress: '00:11:22:33:44:55',
-      name: 'Main Gateway',
-      description: 'Main controller for office network, placed near the entrance.',
+      macAddress: '24:58:7C:CC:E5:B4',
+      name: 'Luzes de Natal',
+      description: 'Controlador principal com acesso à rede AP',
       x: 5,
       y: 5,
-      zoneId: zone.id, // Assign to the created zone
-      status: DeviceStatus.ACTIVE, // Set status to ACTIVE
+      zoneId: zone.id,
+      status: DeviceStatus.ACTIVE,
+      role: DeviceRole.CONTROLLER,
+      deviceColor: '#FF0000',
     },
   });
-  console.log(`✅ Created ACTIVE controller: ${controller.name}`);
+  console.log(`✅ Criado dispositivo controller ACTIVE: ${controller.name}`);
 
-  // 5. Create Workers with different statuses
-  const activeWorker = await prisma.worker.upsert({
+  // 5. Cria workers (Device com role WORKER)
+  const activeWorker = await prisma.device.upsert({
     where: { macAddress: 'AA:BB:CC:DD:EE:01' },
     update: {},
     create: {
       macAddress: 'AA:BB:CC:DD:EE:01',
-      name: 'Sensor - Meeting Room',
-      description: 'Temperature sensor in the main meeting room.',
+      name: 'Sensor - Sala de Reuniões',
+      description: 'Sensor de temperatura e umidade na sala de reuniões',
       x: 50,
       y: 25,
-      zoneId: zone.id, // Assign to the created zone
+      zoneId: zone.id,
       status: DeviceStatus.ACTIVE,
+      role: DeviceRole.WORKER,
+      deviceColor: '#00FF00',
     },
   });
-  console.log(`✅ Created ACTIVE worker: ${activeWorker.name}`);
+  console.log(`✅ Criado dispositivo worker ACTIVE: ${activeWorker.name}`);
 
-  const pendingWorker = await prisma.worker.upsert({
+  const pendingWorker = await prisma.device.upsert({
     where: { macAddress: 'AA:BB:CC:DD:EE:02' },
     update: {},
     create: {
       macAddress: 'AA:BB:CC:DD:EE:02',
-      name: 'New Unassigned Sensor',
-      description: 'A newly discovered device.',
-      x: 0, // Default position
-      y: 0, // Default position
-      // zoneId is null by default, making it unassigned
-      status: DeviceStatus.PENDING, // This device needs configuration
+      name: 'Sensor ainda não configurado',
+      description: 'Dispositivo recém descoberto pela rede',
+      x: 0,
+      y: 0,
+      status: DeviceStatus.PENDING,
+      role: DeviceRole.WORKER,
+      deviceColor: '#0000FF',
     },
   });
-  console.log(`✅ Created PENDING worker: ${pendingWorker.name}`);
+  console.log(`✅ Criado dispositivo worker PENDING device: ${pendingWorker.name}`);
 
-  // 6. Create sample readings ONLY for the active worker
+  // 6. Cria leituras de exemplo para o worker ativo
   const readings: any[] = [];
   for (let i = 0; i < 5; i++) {
     const reading = await prisma.reading.create({
       data: {
-        temperature: 20 + Math.random() * 5, // Random temp between 20-25°C
-        humidity: 45 + Math.random() * 10,  // Random humidity between 45-55%
-        readingTime: new Date(Date.now() - i * 60 * 60 * 1000), // Each reading 1 hour apart
-        workerId: activeWorker.id, // Link reading to the ACTIVE worker
+        temperature: 20 + Math.random() * 5,
+        humidity: 45 + Math.random() * 10,
+        readingTime: new Date(Date.now() - i * 60 * 60 * 1000),
+        deviceId: activeWorker.id, // Link reading to the ACTIVE worker device
       },
     });
     readings.push(reading);
   }
-  console.log(`✅ Created ${readings.length} sample readings for ${activeWorker.name}.`);
+  console.log(`✅ Criado ${readings.length} leituras de exemplo para o dispositivo ${activeWorker.name}.`);
 
-  console.log('\n🎉 Seed completed successfully!');
-  console.log('📧 Test user credentials:');
+  console.log('\n🎉 Seed completado com sucesso!');
+  console.log('📧 Credenciais do usuário de teste:');
   console.log('   Email: test@example.com');
   console.log('   Password: password123');
 }
@@ -125,7 +129,7 @@ main()
     await prisma.$disconnect();
   })
   .catch(async (e) => {
-    console.error('❌ Seed failed:', e);
+    console.error('❌ Seed falhou:', e);
     await prisma.$disconnect();
     process.exit(1);
   });

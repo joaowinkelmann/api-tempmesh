@@ -56,14 +56,17 @@ model Zone {
   meshId String @map("mesh_id")
   mesh   Mesh   @relation(fields: [meshId], references: [id], onDelete: Cascade)
 
+  // Para estilização da Zone, vamos atribuir um campo para cor
+  bgColor String? @map("bg_color") // Cor de fundo em formato hexadecimal
+
   // Os dispositvos pertenecem a uma Zone
-  workers     Worker[]
-  controllers Controller[]
+  devices Device[]
 
   @@map("zone")
 }
 
-model Controller {
+// Dispositivo coletor e emissor de dados
+model Device {
   id          String   @id @default(uuid())
   insDthr     DateTime @default(now()) @map("ins_dthr")
   altDthr     DateTime @updatedAt @map("alt_dthr")
@@ -71,55 +74,42 @@ model Controller {
   name        String
   description String?
 
+  // Posição do dispositivo no mapa virtual
   x Float
   y Float
 
+  // Status e função do dispositivo
   status DeviceStatus @default(PENDING)
+  role   DeviceRole   @default(WORKER)
 
+  // Dispositivo vai pertencer a uma Mesh, mas a zona pode ser opcional
   zoneId String? @map("zone_id")
   zone   Zone?   @relation(fields: [zoneId], references: [id], onDelete: SetNull)
 
-  readings Reading[]
-
-  @@map("controller")
-}
-
-model Worker {
-  id          String   @id @default(uuid())
-  insDthr     DateTime @default(now()) @map("ins_dthr")
-  altDthr     DateTime @updatedAt @map("alt_dthr")
-  macAddress  String   @unique @map("mac_address")
-  name        String
-  description String?
-
-  x Float
-  y Float
-
-  status DeviceStatus @default(PENDING)
-
-  zoneId String? @map("zone_id")
-  zone   Zone?   @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  // Cor do dispositivo para visualização no mapa e posterior identificação em tempo real
+  deviceColor String? @map("device_color")
 
   readings Reading[]
 
-  @@map("worker")
+  @@map("device")
 }
 
-// Representa uma leitura de sensores
+// Representa uma leitura de sensores realizada por um Device
 model Reading {
-  id          String   @id @default(uuid())
-  insDthr     DateTime @default(now()) @map("ins_dthr")
-  altDthr     DateTime @updatedAt @map("alt_dthr")
-  temperature Float?
-  humidity    Float?
+  id      String   @id @default(uuid())
+  insDthr DateTime @default(now()) @map("ins_dthr")
+  altDthr DateTime @updatedAt @map("alt_dthr")
+
+  // Momento da leitura
   readingTime DateTime @map("reading_time")
 
-  // Uma leitura pode ser associada tanto a um Worker quanto a um Controller
-  workerId String?
-  worker   Worker? @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  // Valores dos sensores
+  temperature Float?
+  humidity    Float?
 
-  controllerId String?
-  controller   Controller? @relation(fields: [controllerId], references: [id], onDelete: Cascade)
+  // Dispositivo que fez a leitura
+  deviceId String?
+  device   Device? @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@map("reading")
 }
@@ -128,4 +118,9 @@ enum DeviceStatus {
   PENDING // Aguardando ativação/configuração após recém descoberto e adicionado à Mesh automaticamente.
   ACTIVE // Configurado e enviando dados.
   DISABLED // Manualmente desativado
+}
+
+enum DeviceRole {
+  WORKER // Dispositivo que coleta dados de sensores periodicamente e envia para o Controller. Faz uso de descanso profundo.
+  CONTROLLER // Tem conexão ativa com a rede AP/Internet. É quem envia os dados para a API. Sempre ativo. Também faz leituras de sensores.
 }
