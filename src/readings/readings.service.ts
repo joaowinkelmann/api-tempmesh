@@ -15,13 +15,12 @@ export class ReadingsService {
       `Recebido dados dos seguintes MACs: ${macAddresses.join(', ')}`,
     );
 
-    // 2. Encontra os workers com esses endereços no banco
-    const workers = await this.prisma.device.findMany({
+    // 2. Encontra os dispositivos com esses endereços no banco
+    const foundDevices = await this.prisma.device.findMany({
       where: {
         macAddress: {
           in: macAddresses,
         },
-        role: 'WORKER', // Filtra apenas dispositivos com role WORKER
       },
       select: {
         id: true,
@@ -30,16 +29,16 @@ export class ReadingsService {
     });
 
     // 3. Faz um mapa do mac para o worker
-    const workerIdMap = new Map(workers.map((w) => [w.macAddress, w.id]));
+    const foundDevicesIdMap = new Map(foundDevices.map((w) => [w.macAddress, w.id]));
     this.logger.log(
-      `Encontrados ${workerIdMap.size} trabalhadores registrados no banco de dados.`,
+      `Encontrados ${foundDevicesIdMap.size} dispositivos registrados no banco.`
     );
 
     // 4. Monta os dados pra inserir no banco
     const readingsToCreate = readings
       .map((reading) => {
-        const workerId = workerIdMap.get(reading.mac);
-        if (!workerId) {
+        const foundDeviceId = foundDevicesIdMap.get(reading.mac);
+        if (!foundDeviceId) {
           // Se não está registrado ainda, ignora
           this.logger.warn(
             `Ignorando dados de MAC não registrado: ${reading.mac}`,
@@ -50,7 +49,7 @@ export class ReadingsService {
           temperature: reading.temp,
           humidity: reading.hum,
           readingTime: new Date(),
-          workerId: workerId,
+          deviceId: foundDeviceId,
         };
       })
       .filter((r) => r !== null);
