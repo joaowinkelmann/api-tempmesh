@@ -4,10 +4,11 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    private readonly logger = new Logger(AuthService.name)
   ) {}
 
   async signIn(email: string, password: string) {
