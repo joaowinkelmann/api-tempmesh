@@ -64,6 +64,7 @@ async function main() {
       zoneId: zone.id,
       status: DeviceStatus.ACTIVE,
       role: DeviceRole.CONTROLLER,
+      userId: user.id,
       deviceColor: '#FF0000',
     },
   });
@@ -82,6 +83,7 @@ async function main() {
       zoneId: zone.id,
       status: DeviceStatus.ACTIVE,
       role: DeviceRole.WORKER,
+      userId: user.id,
       deviceColor: '#00FF00',
     },
   });
@@ -98,6 +100,7 @@ async function main() {
       y: 0,
       status: DeviceStatus.PENDING,
       role: DeviceRole.WORKER,
+      userId: user.id,
       deviceColor: '#0000FF',
     },
   });
