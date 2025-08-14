@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
@@ -7,27 +7,48 @@ import { UpdateDeviceDto } from './dto/update-device.dto';
 export class DevicesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createDeviceDto: CreateDeviceDto) {
-    return this.prisma.device.create({
-      data: createDeviceDto,
+  async create(createDeviceDto: CreateDeviceDto, userId: string) {
+    return await this.prisma.device.create({
+      data: {
+        ...createDeviceDto,
+        userId,
+      },
     });
   }
 
   async findAll() {
-    return this.prisma.device.findMany();
+    return await this.prisma.device.findMany();
   }
 
   async findOne(id: string) {
-    return this.prisma.device.findUnique({
+    return await this.prisma.device.findUnique({
       where: { id },
     });
   }
 
-  update(id: number, updateDeviceDto: UpdateDeviceDto) {
-    return `This action updates a #${id} device`;
+  async update(id: string, updateDeviceDto: UpdateDeviceDto, userId: string) {
+    // Only allow update if device belongs to user
+    const device = await this.prisma.device.findUnique({ where: { id } });
+    if (!device) {
+      throw new NotFoundException('Device not found');
+    }
+    if (device.userId !== userId) {
+      throw new UnauthorizedException('You do not have permission to update this device');
+    }
+    return await this.prisma.device.update({
+      where: { id },
+      data: updateDeviceDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} device`;
+  async remove(id: string, userId: string) {
+    // Only allow delete if device belongs to user
+    const device = await this.prisma.device.findUnique({ where: { id } });
+    if (!device || device.userId !== userId) {
+      throw new Error('Device not found or access denied');
+    }
+    return this.prisma.device.delete({
+      where: { id },
+    });
   }
 }

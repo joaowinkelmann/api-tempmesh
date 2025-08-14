@@ -8,6 +8,7 @@ import {
   Request,
   HttpCode,
   HttpStatus,
+  Delete,
 } from '@nestjs/common';
 import { DevicesService } from './devices.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
@@ -22,8 +23,7 @@ export class DevicesController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createDeviceDto: CreateDeviceDto, @Request() req) {
-    // Optionally, you can associate the device with the user's mesh here
-    return this.devicesService.create(createDeviceDto);
+    return this.devicesService.create(createDeviceDto, req.user.sub);
   }
 
   @Get()
@@ -34,5 +34,21 @@ export class DevicesController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.devicesService.findOne(id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateDeviceDto: UpdateDeviceDto,
+    @Request() req,
+  ) {
+    return this.devicesService.update(id, updateDeviceDto, req.user.sub);
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete(':id')
+  async remove(@Param('id') id: string, @Request() req) {
+    return this.devicesService.remove(id, req.user.sub);
   }
 }
