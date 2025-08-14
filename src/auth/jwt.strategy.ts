@@ -6,10 +6,13 @@ import { jwtConstants } from './constants';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
+    if (!jwtConstants.secret) {
+      throw new Error('JWT_SECRET não definido, por favor, verifique seu .env');
+    }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: jwtConstants.secret || new Error('JWT secret não definido'),
+      secretOrKey: jwtConstants.secret,
     });
   }
 
