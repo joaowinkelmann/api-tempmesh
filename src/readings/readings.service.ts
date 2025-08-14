@@ -29,9 +29,11 @@ export class ReadingsService {
     });
 
     // 3. Faz um mapa do mac para o worker
-    const foundDevicesIdMap = new Map(foundDevices.map((w) => [w.macAddress, w.id]));
+    const foundDevicesIdMap = new Map(
+      foundDevices.map((w) => [w.macAddress, w.id]),
+    );
     this.logger.log(
-      `Encontrados ${foundDevicesIdMap.size} dispositivos registrados no banco.`
+      `Encontrados ${foundDevicesIdMap.size} dispositivos registrados no banco.`,
     );
 
     // 4. Monta os dados pra inserir no banco

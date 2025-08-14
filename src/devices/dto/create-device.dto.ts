@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsNumber, IsEnum, IsMACAddress } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsEnum,
+  IsMACAddress,
+} from 'class-validator';
 import { DeviceStatus, DeviceRole } from '@prisma/client';
 
 export class CreateDeviceDto {

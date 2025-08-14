@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
@@ -33,7 +37,9 @@ export class DevicesService {
       throw new NotFoundException('Device not found');
     }
     if (device.userId !== userId) {
-      throw new UnauthorizedException('You do not have permission to update this device');
+      throw new UnauthorizedException(
+        'You do not have permission to update this device',
+      );
     }
     return await this.prisma.device.update({
       where: { id },
