@@ -69,7 +69,7 @@ log "Running Bun $(bun --revision)"
 bun install || handle_error "Failed to install dependencies"
 
 # Run database migrations and generate Prisma client
-bunx prisma migrate deploy || handle_error "Failed to run Prisma migrations"
+export $(grep -v '^#' .env | xargs) && bunx prisma migrate deploy || handle_error "Failed to run Prisma migrations"
 bunx prisma generate || handle_error "Failed to generate Prisma client"
 
 bun update || handle_error "Failed to update dependencies"
