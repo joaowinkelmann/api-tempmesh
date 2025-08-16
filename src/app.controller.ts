@@ -8,8 +8,7 @@ export class AppController {
 
   @Public()
   @Get()
-  // Redireciona de maneira relativa, para não quebrar a rota
-  @Redirect('docs', 302)
+  @Redirect('/tempmesh/api/docs', 302)
   getHello() {
     // return this.appService.getHello();
     // Agora redireciona para a documentação em /docs
