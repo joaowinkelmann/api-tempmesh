@@ -36,7 +36,15 @@ model Mesh {
   userId String @map("user_id")
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Uma Mesh tem várias Zonas
+  // Ponto central dentro do mapa do OpenStreetMap (caso não tenha um mapa setado)
+  lat Float // Latitude
+  lon Float // Longitude
+
+  // TODO: Deixar como opção mapa customizado
+  // URL do mapa customizado, se houver, utilzando o padrão /{zoom}/{x}/{y}.png ou algo parecido
+  mapUrl String? @map("map_url") // URL do mapa customizado, se houver
+
+  // Uma Mesh tem várias Zones
   zones Zone[]
 
   @@map("mesh")
@@ -50,7 +58,8 @@ model Zone {
   altDthr DateTime @updatedAt @map("alt_dthr")
 
   // Vértices que definem a forma do polígono em um mapa virtual.
-  // Armazenado como JSON para ser flexível, por exemplo, [{ "x": 0, "y": 50 }, { "x": 100, "y": 50 }, ...]
+  // Posição relativa ao centro da Mesh, ou seja, (0,0) é o centro da Mesh.
+  // Armazenado como JSON para ser flexível, por exemplo, [{ "x": 0, "y": -50 }, { "x": 100, "y": 50 }, ...]
   vertices Json
 
   // Cada Zone pertence a uma Mesh somente
@@ -75,7 +84,7 @@ model Device {
   name        String
   description String?
 
-  // Posição do dispositivo no mapa virtual
+  // Posição relativa do dispositivo ao centro da Mesh no mapa virtual
   x Float
   y Float
 

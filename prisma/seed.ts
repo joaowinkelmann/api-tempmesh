@@ -15,7 +15,7 @@ async function main() {
     },
     create: {
       email: 'test@example.com',
-      name: 'Test User',
+      name: 'Kléber da Silva Santiago Azevêdo',
       passwordHash: hashedPassword,
     },
   });
@@ -29,6 +29,8 @@ async function main() {
       id: 'mesh-1',
       name: 'Mesh dos Guris',
       userId: user.id,
+      lat: -23.5505, // Latitude do centro da Mesh
+      lon: -46.6333, // Longitude do centro da Mesh
     },
   });
   console.log('✅ Criada mesh:', mesh.name);
@@ -114,7 +116,7 @@ async function main() {
         temperature: 20 + Math.random() * 5,
         humidity: 45 + Math.random() * 10,
         readingTime: new Date(Date.now() - i * 60 * 60 * 1000),
-        deviceId: activeWorker.id, // Link reading to the ACTIVE worker device
+        deviceId: activeWorker.id,
       },
     });
     readings.push(reading);

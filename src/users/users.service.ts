@@ -1,28 +1,25 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 import * as argon2 from 'argon2';
 
 @Injectable()
 export class UsersService {
-  private users: Array<{ userId: number; username: string; password: string }>;
-
-  constructor(private prismaService: PrismaService) {
-    this.users = [
-      {
-        userId: 1,
-        username: 'john',
-        password: 'changeme',
-      },
-      {
-        userId: 2,
-        username: 'maria',
-        password: 'guess',
-      },
-    ];
-  }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async findOne(username: string) {
-    return await this.users.find((user) => user.username === username);
+    return await this.prismaService.user.findUnique({
+      where: { email: username },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+      },
+    });
   }
 
   async findByEmail(email: string) {
@@ -74,26 +71,14 @@ export class UsersService {
     return result;
   }
 
-  async update(id: string, updateUserDto: { name?: string; email?: string }) {
-    // Build update data object with only provided fields
-    const updateData: any = {};
-
-    if (updateUserDto.name !== undefined) {
-      updateData.name = updateUserDto.name;
-    }
-
-    if (updateUserDto.email !== undefined) {
-      updateData.email = updateUserDto.email;
-    }
-
-    // If no fields to update, throw an error
-    if (Object.keys(updateData).length === 0) {
-      throw new Error('No fields provided for update');
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    if (Object.keys(updateUserDto).length === 0) {
+      throw new BadRequestException('No fields to update');
     }
 
     return await this.prismaService.user.update({
       where: { id },
-      data: updateData,
+      data: updateUserDto,
       select: {
         id: true,
         email: true,
