@@ -14,6 +14,7 @@ import { DevicesService } from './devices.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { AuthGuard } from '../auth/auth.guard';
+import { ReqReturnDto } from '../auth/dto/req-return.dto';
 
 @Controller('devices')
 export class DevicesController {
@@ -22,7 +23,10 @@ export class DevicesController {
   @UseGuards(AuthGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createDeviceDto: CreateDeviceDto, @Request() req) {
+  async create(
+    @Body() createDeviceDto: CreateDeviceDto,
+    @Request() req: ReqReturnDto,
+  ) {
     return this.devicesService.create(createDeviceDto, req.user.sub);
   }
 
@@ -41,14 +45,14 @@ export class DevicesController {
   async update(
     @Param('id') id: string,
     @Body() updateDeviceDto: UpdateDeviceDto,
-    @Request() req,
+    @Request() req: ReqReturnDto,
   ) {
     return this.devicesService.update(id, updateDeviceDto, req.user.sub);
   }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  async remove(@Param('id') id: string, @Request() req) {
+  async remove(@Param('id') id: string, @Request() req: ReqReturnDto) {
     return this.devicesService.remove(id, req.user.sub);
   }
 }

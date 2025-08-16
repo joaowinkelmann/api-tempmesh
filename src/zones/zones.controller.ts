@@ -6,14 +6,23 @@ import {
   Patch,
   Param,
   Delete,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { ZonesService } from './zones.service';
 import { CreateZoneDto } from './dto/create-zone.dto';
 import { UpdateZoneDto } from './dto/update-zone.dto';
+import { AuthGuard } from '../auth/auth.guard';
+import { ReqReturnDto } from '../auth/dto/req-return.dto';
+import { DevicesService } from '../devices/devices.service';
 
+@UseGuards(AuthGuard)
 @Controller('zones')
 export class ZonesController {
-  constructor(private readonly zonesService: ZonesService) {}
+  constructor(
+    private readonly zonesService: ZonesService,
+    private readonly devicesService: DevicesService,
+  ) {}
 
   @Post()
   create(@Body() createZoneDto: CreateZoneDto) {
@@ -40,8 +49,11 @@ export class ZonesController {
     return this.zonesService.remove(id);
   }
 
-  @Get('/mesh/:meshId')
-  findByMesh(@Param('meshId') meshId: string) {
-    return this.zonesService.findByMesh(meshId);
+  @Get(':zoneId/devices')
+  findDevicesByZone(
+    @Param('zoneId') zoneId: string,
+    @Request() req: ReqReturnDto,
+  ) {
+    return this.devicesService.findDevicesByZone(zoneId, req.user.sub);
   }
 }

@@ -23,10 +23,13 @@ export class ZonesService {
     });
   }
 
-  // Retrieve zones for the desired mesh
-  findByMesh(meshId: string) {
+  // Pega as zones da mesh desejada e garante que a mesh pertença ao usuário
+  findZonesByMesh(meshId: string, userId: string) {
     return this.prisma.zone.findMany({
-      where: { meshId },
+      where: {
+        meshId,
+        mesh: { userId },
+      },
     });
   }
 

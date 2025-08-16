@@ -30,6 +30,15 @@ export class DevicesService {
     });
   }
 
+  async findDevicesByZone(zoneId: string, userId: string) {
+    return await this.prisma.device.findMany({
+      where: {
+        zoneId,
+        zone: { mesh: { userId } }, // A zone tem que pertencer ao usuário
+      },
+    });
+  }
+
   async update(id: string, updateDeviceDto: UpdateDeviceDto, userId: string) {
     // Only allow update if device belongs to user
     const device = await this.prisma.device.findUnique({ where: { id } });

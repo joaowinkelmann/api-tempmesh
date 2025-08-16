@@ -14,6 +14,7 @@ import { CreateMeshDto } from './dto/create-mesh.dto';
 import { UpdateMeshDto } from './dto/update-mesh.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { ZonesService } from '../zones/zones.service';
+import { ReqReturnDto } from '../auth/dto/req-return.dto';
 
 @UseGuards(AuthGuard)
 @Controller('meshes')
@@ -24,17 +25,20 @@ export class MeshesController {
   ) {}
 
   @Post()
-  async create(@Body() createMeshDto: CreateMeshDto, @Request() req) {
+  async create(
+    @Body() createMeshDto: CreateMeshDto,
+    @Request() req: ReqReturnDto,
+  ) {
     return this.meshesService.create(createMeshDto, req.user.sub);
   }
 
   @Get()
-  async findAll(@Request() req) {
+  async findAll(@Request() req: ReqReturnDto) {
     return this.meshesService.findAll(req.user.sub);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @Request() req) {
+  async findOne(@Param('id') id: string, @Request() req: ReqReturnDto) {
     return this.meshesService.findOne(id, req.user.sub);
   }
 
@@ -42,18 +46,21 @@ export class MeshesController {
   async update(
     @Param('id') id: string,
     @Body() updateMeshDto: UpdateMeshDto,
-    @Request() req,
+    @Request() req: ReqReturnDto,
   ) {
     return this.meshesService.update(id, updateMeshDto, req.user.sub);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string, @Request() req) {
+  async remove(@Param('id') id: string, @Request() req: ReqReturnDto) {
     return this.meshesService.remove(id, req.user.sub);
   }
 
   @Get(':meshId/zones')
-  async findZones(@Param('meshId') meshId: string) {
-    return this.zonesService.findByMesh(meshId);
+  async findZonesByMesh(
+    @Param('meshId') meshId: string,
+    @Request() req: ReqReturnDto,
+  ) {
+    return this.zonesService.findZonesByMesh(meshId, req.user.sub);
   }
 }
