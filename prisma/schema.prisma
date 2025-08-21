@@ -92,7 +92,7 @@ model Device {
   status DeviceStatus @default(PENDING)
   role   DeviceRole   @default(WORKER)
 
-  // Dispositivo vai pertencer a uma Mesh, mas a zona pode ser opcional
+  // Dispositivo vai sempre pertencer a uma Mesh, mas a zona pode ser opcional
   zoneId String? @map("zone_id")
   zone   Zone?   @relation(fields: [zoneId], references: [id], onDelete: SetNull)
 
@@ -100,8 +100,11 @@ model Device {
   userId String @map("user_id") 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Cor do dispositivo para visualização no mapa e posterior identificação em tempo real
-  deviceColor String? @map("device_color")
+  // Parametrizações / Configurações do dispositivo
+  deviceColor String? @map("color") // Cor do dispositivo para visualização no mapa e posterior identificação em tempo real
+  // wakeUpInterval Int? @map("wake_up_interval") // Intervalo de tempo em segundos entre as leituras de sensores, e por consequência, o período de sono do dispositivo
+  wakeUpInterval Int? @map("wake_up_interval") @default(3600) // Intervalo de tempo em segundos entre as leituras de sensores, e por consequência, o período de sono do dispositivo. Padrão 1 hora (3600 segundos)
+  readingsPerBatch Int? @map("readings_per_batch") @default(1) // Quantidade de leituras que o dispositivo deve armazenar antes de enviar um lote para o Controller
 
   readings Reading[]
 

@@ -4,6 +4,8 @@ import {
   IsNumber,
   IsEnum,
   IsMACAddress,
+  IsInt,
+  Min,
 } from 'class-validator';
 import { DeviceStatus, DeviceRole } from '@prisma/client';
 
@@ -43,4 +45,14 @@ export class CreateDeviceDto {
   @IsString()
   @IsOptional()
   meshId: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  readingsPerBatch?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  wakeUpInterval?: number;
 }

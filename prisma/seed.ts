@@ -68,6 +68,8 @@ async function main() {
       role: DeviceRole.CONTROLLER,
       userId: user.id,
       deviceColor: '#FF0000',
+      readingsPerBatch: 2,
+      wakeUpInterval: 60 * 60, // 1 hora
     },
   });
   console.log(`✅ Criado dispositivo controller ACTIVE: ${controller.name}`);
@@ -87,6 +89,8 @@ async function main() {
       role: DeviceRole.WORKER,
       userId: user.id,
       deviceColor: '#00FF00',
+      readingsPerBatch: 1,
+      wakeUpInterval: 60 * 30, // 30 minutos
     },
   });
   console.log(`✅ Criado dispositivo worker ACTIVE: ${activeWorker.name}`);
@@ -104,6 +108,8 @@ async function main() {
       role: DeviceRole.WORKER,
       userId: user.id,
       deviceColor: '#0000FF',
+      readingsPerBatch: 1,
+      wakeUpInterval: 60 * 60 * 2, // 2 horas
     },
   });
   console.log(`✅ Criado dispositivo worker PENDING device: ${pendingWorker.name}`);
