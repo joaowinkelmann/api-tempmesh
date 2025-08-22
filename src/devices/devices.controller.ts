@@ -53,8 +53,23 @@ export class DevicesController {
   @ApiOperation({ summary: 'Busca todos os dispositivos do usuário logado.' })
   @UseGuards(AuthGuard)
   @Get()
-  async findAll() {
-    return this.devicesService.findAll();
+  async findDevicesByUser(@Request() req: ReqReturnDto) {
+    return this.devicesService.findDevicesByUser(req.user.sub);
+  }
+
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna um dispositivo pelo MAC pertencente ao usuário.',
+    type: Device,
+  })
+  @ApiOperation({ summary: 'Busca um dispositivo pelo MAC, pertencendo também ao usuário logado.' })
+  @UseGuards(AuthGuard)
+  @Get('mac/:macAddress')
+  async findByMac(
+    @Param('macAddress') macAddress: string,
+    @Request() req: ReqReturnDto,
+  ) {
+    return this.devicesService.findByMacAndUser(macAddress, req.user.sub);
   }
 
   @ApiResponse({

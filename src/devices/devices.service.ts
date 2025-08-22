@@ -43,6 +43,25 @@ export class DevicesService {
     });
   }
 
+  async findDevicesByUser(userId: string): Promise<Device[] | undefined | null> {
+    return await this.prisma.device.findMany({
+      where: { userId },
+    });
+  }
+
+  async findByMacAndUser(
+    macAddress: string,
+    userId: string,
+  ): Promise<Device | undefined | null> {
+    const device = await this.prisma.device.findFirst({
+      where: { macAddress, userId },
+    });
+    if (!device) {
+      throw new NotFoundException('Device not found');
+    }
+    return device;
+  }
+
   async update(id: string, updateDeviceDto: UpdateDeviceDto, userId: string) {
     // Only allow update if device belongs to user
     const device = await this.prisma.device.findUnique({ where: { id } });
