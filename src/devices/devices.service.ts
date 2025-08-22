@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
+import { Device } from './entities/device.entity';
 
 @Injectable()
 export class DevicesService {
@@ -24,13 +25,16 @@ export class DevicesService {
     return await this.prisma.device.findMany();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Device | undefined | null> {
     return await this.prisma.device.findUnique({
       where: { id },
     });
   }
 
-  async findDevicesByZone(zoneId: string, userId: string) {
+  async findDevicesByZone(
+    zoneId: string,
+    userId: string,
+  ): Promise<Device[] | undefined | null> {
     return await this.prisma.device.findMany({
       where: {
         zoneId,
