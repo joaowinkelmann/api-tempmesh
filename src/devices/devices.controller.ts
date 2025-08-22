@@ -36,7 +36,7 @@ export class DevicesController {
   @ApiOperation({
     summary: 'Cria um novo dispositivo vinculado ao usuário logado.',
   })
-  // @ApiBody() // TODO: Preencher o api body no futuro
+  @ApiBody({ type: CreateDeviceDto })
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body() createDeviceDto: CreateDeviceDto,
@@ -62,13 +62,16 @@ export class DevicesController {
     description: 'Retorna um dispositivo pelo MAC pertencente ao usuário.',
     type: Device,
   })
-  @ApiOperation({ summary: 'Busca um dispositivo pelo MAC, pertencendo também ao usuário logado.' })
+  @ApiOperation({
+    summary:
+      'Busca um dispositivo pelo MAC, pertencendo também ao usuário logado.',
+  })
   @UseGuards(AuthGuard)
   @Get('mac/:macAddress')
-  async findByMac(
+  async findByMacAndUser(
     @Param('macAddress') macAddress: string,
     @Request() req: ReqReturnDto,
-  ) {
+  ): Promise<Device | undefined | null> {
     return this.devicesService.findByMacAndUser(macAddress, req.user.sub);
   }
 

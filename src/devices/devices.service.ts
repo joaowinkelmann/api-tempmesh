@@ -43,7 +43,9 @@ export class DevicesService {
     });
   }
 
-  async findDevicesByUser(userId: string): Promise<Device[] | undefined | null> {
+  async findDevicesByUser(
+    userId: string,
+  ): Promise<Device[] | undefined | null> {
     return await this.prisma.device.findMany({
       where: { userId },
     });
