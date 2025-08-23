@@ -11,9 +11,13 @@ async function bootstrap() {
   app.setGlobalPrefix('tempmesh/api/');
 
   const config = new DocumentBuilder()
-    .setTitle('TempMesh API')
-    .setDescription('API specification for TempMesh')
+    .setTitle('Tempmesh API')
+    .setDescription('API specification for Tempmesh')
     .setVersion('v0.1')
+    .setExternalDoc('OpenAPI JSON Format', '/tempmesh/api/docs-json')
+    .addServer('https://winkels.com.br')
+    .setBasePath('/tempmesh/api')
+    .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   // SwaggerModule.setup('docs', app, documentFactory);
