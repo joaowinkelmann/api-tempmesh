@@ -54,6 +54,6 @@ export class ZonesController {
     @Param('zoneId') zoneId: string,
     @Request() req: ReqReturnDto,
   ) {
-    return this.devicesService.findDevicesByZone(zoneId, req.user.sub);
+    return this.devicesService.findDevicesByZone(zoneId, req.user.user_id);
   }
 }

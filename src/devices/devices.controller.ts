@@ -26,7 +26,7 @@ import {
 import { Device } from './entities/device.entity';
 
 @ApiBearerAuth()
-@ApiTags('devices')
+@ApiTags('Devices')
 @Controller('devices')
 export class DevicesController {
   constructor(private readonly devicesService: DevicesService) {}
@@ -42,7 +42,7 @@ export class DevicesController {
     @Body() createDeviceDto: CreateDeviceDto,
     @Request() req: ReqReturnDto,
   ) {
-    return this.devicesService.create(createDeviceDto, req.user.sub);
+    return this.devicesService.create(createDeviceDto, req.user.user_id);
   }
 
   @ApiResponse({
@@ -54,7 +54,7 @@ export class DevicesController {
   @UseGuards(AuthGuard)
   @Get()
   async findDevicesByUser(@Request() req: ReqReturnDto) {
-    return this.devicesService.findDevicesByUser(req.user.sub);
+    return this.devicesService.findDevicesByUser(req.user.user_id);
   }
 
   @ApiResponse({
@@ -72,7 +72,7 @@ export class DevicesController {
     @Param('macAddress') macAddress: string,
     @Request() req: ReqReturnDto,
   ): Promise<Device | undefined | null> {
-    return this.devicesService.findByMacAndUser(macAddress, req.user.sub);
+    return this.devicesService.findByMacAndUser(macAddress, req.user.user_id);
   }
 
   @ApiResponse({
@@ -94,7 +94,7 @@ export class DevicesController {
     @Body() updateDeviceDto: UpdateDeviceDto,
     @Request() req: ReqReturnDto,
   ) {
-    return this.devicesService.update(id, updateDeviceDto, req.user.sub);
+    return this.devicesService.update(id, updateDeviceDto, req.user.user_id);
   }
 
   @UseGuards(AuthGuard)
@@ -103,6 +103,6 @@ export class DevicesController {
     summary: 'Deleta um dispositivo pertencente ao usuário logado.',
   })
   async remove(@Param('id') id: string, @Request() req: ReqReturnDto) {
-    return this.devicesService.remove(id, req.user.sub);
+    return this.devicesService.remove(id, req.user.user_id);
   }
 }

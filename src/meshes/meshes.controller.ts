@@ -29,17 +29,17 @@ export class MeshesController {
     @Body() createMeshDto: CreateMeshDto,
     @Request() req: ReqReturnDto,
   ) {
-    return this.meshesService.create(createMeshDto, req.user.sub);
+    return this.meshesService.create(createMeshDto, req.user.user_id);
   }
 
   @Get()
   async findAll(@Request() req: ReqReturnDto) {
-    return this.meshesService.findAll(req.user.sub);
+    return this.meshesService.findAll(req.user.user_id);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string, @Request() req: ReqReturnDto) {
-    return this.meshesService.findOne(id, req.user.sub);
+    return this.meshesService.findOne(id, req.user.user_id);
   }
 
   @Patch(':id')
@@ -48,12 +48,12 @@ export class MeshesController {
     @Body() updateMeshDto: UpdateMeshDto,
     @Request() req: ReqReturnDto,
   ) {
-    return this.meshesService.update(id, updateMeshDto, req.user.sub);
+    return this.meshesService.update(id, updateMeshDto, req.user.user_id);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string, @Request() req: ReqReturnDto) {
-    return this.meshesService.remove(id, req.user.sub);
+    return this.meshesService.remove(id, req.user.user_id);
   }
 
   @Get(':meshId/zones')
@@ -61,6 +61,6 @@ export class MeshesController {
     @Param('meshId') meshId: string,
     @Request() req: ReqReturnDto,
   ) {
-    return this.zonesService.findZonesByMesh(meshId, req.user.sub);
+    return this.zonesService.findZonesByMesh(meshId, req.user.user_id);
   }
 }

@@ -23,13 +23,13 @@ import {
 } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags('Auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @HttpCode(HttpStatus.OK)
   @Public()
   @Post('login')
-  @ApiTags('auth')
   @ApiOperation({
     summary: 'Login do usuário - Retorna um JWT access_token',
   })
@@ -46,7 +46,6 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Get('profile')
-  @ApiTags('auth')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Busca o perfil do usuário autenticado' })
   @ApiResponse({

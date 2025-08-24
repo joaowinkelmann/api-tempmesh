@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as argon2 from 'argon2';
+import { ValidatePasswordDto } from './dto/validate-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -55,20 +56,24 @@ export class UsersService {
     });
   }
 
-  async validatePassword(email: string, password: string) {
+  async validatePassword(
+    email: string,
+    password: string,
+  ): Promise<false | ValidatePasswordDto> {
     const user = await this.findByEmail(email);
     if (!user) {
-      return null;
+      return false;
     }
 
     const isPasswordValid = await argon2.verify(user.passwordHash, password);
     if (!isPasswordValid) {
-      return null;
+      return false;
     }
-
-    // Return user without password hash
-    const { passwordHash, ...result } = user;
-    return result;
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    };
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

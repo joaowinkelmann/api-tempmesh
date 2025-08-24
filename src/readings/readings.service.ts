@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { ReadingDataPointDto } from './dto/create-reading.dto';
+import { CreateReadingsDto } from './dto/create-readings.dto';
 
 @Injectable()
 export class ReadingsService {
@@ -8,9 +8,9 @@ export class ReadingsService {
 
   constructor(private prisma: PrismaService) {}
 
-  async createSensorReadings(readings: ReadingDataPointDto[]) {
+  async createReadings(readings: CreateReadingsDto) {
     // 1. Pega os MAC únicos do json recebido
-    const macAddresses = [...new Set(readings.map((r) => r.mac))];
+    const macAddresses = [...new Set(readings.data.map((r) => r.mac))];
     this.logger.log(
       `Recebido dados dos seguintes MACs: ${macAddresses.join(', ')}`,
     );
@@ -37,7 +37,7 @@ export class ReadingsService {
     );
 
     // 4. Monta os dados pra inserir no banco
-    const readingsToCreate = readings
+    const readingsToCreate = readings.data
       .map((reading) => {
         const foundDeviceId = foundDevicesIdMap.get(reading.mac);
         if (!foundDeviceId) {
@@ -60,7 +60,7 @@ export class ReadingsService {
       this.logger.log(
         'Nenhum dado válido para inserir. Todos os MACs não registrados.',
       );
-      return { createdCount: 0, unregisteredCount: readings.length };
+      return { createdCount: 0, unregisteredCount: readings.data.length };
     }
 
     // 5. Inserindo em massa
@@ -72,7 +72,7 @@ export class ReadingsService {
 
     return {
       createdCount: result.count,
-      unregisteredCount: readings.length - result.count,
+      unregisteredCount: readings.data.length - result.count,
     };
   }
 }

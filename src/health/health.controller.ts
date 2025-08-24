@@ -6,6 +6,7 @@ import {
 } from '@nestjs/terminus';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Public } from '../auth/public.decorator';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('health')
 export class HealthController {
@@ -17,6 +18,9 @@ export class HealthController {
 
   @Public()
   @Get()
+  @ApiOperation({
+    summary: 'Verifica a saúde da API, incluindo o banco de dados.',
+  })
   @HealthCheck()
   healthCheck() {
     return this.health.check([
