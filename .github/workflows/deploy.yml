@@ -12,6 +12,22 @@ jobs:
   test:
     name: Run Unit & Integration Tests
     runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,10 +38,38 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Set up test environment
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+          JWT_SECRET: "A_very_secret_JWT_key_for_E2E_purposes_#confia"
+          JWT_EXPIRES_IN: "3600s"
+        run: |
+          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+          echo "JWT_SECRET=$JWT_SECRET" >> $GITHUB_ENV
+          echo "JWT_EXPIRES_IN=$JWT_EXPIRES_IN" >> $GITHUB_ENV
+
+      # Generate Prisma client with test database
+      - name: Generate Prisma Client
+        run: bunx prisma generate
+
+      # Run database migrations
+      - name: Run database migrations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+        run: bunx prisma migrate deploy
+
       - name: Run tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+          JWT_SECRET: "A_very_secret_JWT_key_for_E2E_purposes_#confia"
+          JWT_EXPIRES_IN: "3600s"
         run: bun test
 
       - name: Run E2E tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+          JWT_SECRET: "A_very_secret_JWT_key_for_E2E_purposes_#confia"
+          JWT_EXPIRES_IN: "3600s"
         run: bun run test:e2e
 
   deploy:
