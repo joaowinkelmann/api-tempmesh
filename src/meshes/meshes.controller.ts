@@ -15,8 +15,20 @@ import { UpdateMeshDto } from './dto/update-mesh.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { ZonesService } from '../zones/zones.service';
 import { ReqReturnDto } from '../auth/dto/req-return.dto';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiParam,
+} from '@nestjs/swagger';
+import { Mesh } from './entities/mesh.entity';
+import { Zone } from '../zones/entities/zone.entity';
 
 @UseGuards(AuthGuard)
+@ApiBearerAuth()
+@ApiTags('Meshes')
 @Controller('meshes')
 export class MeshesController {
   constructor(
@@ -25,25 +37,52 @@ export class MeshesController {
   ) {}
 
   @Post()
-  async create(
-    @Body() createMeshDto: CreateMeshDto,
-    @Request() req: ReqReturnDto,
-  ) {
+  @ApiOperation({ summary: 'Cria uma nova Mesh para o usuário autenticado.' })
+  @ApiBody({ type: CreateMeshDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Mesh criada com sucesso.',
+    type: Mesh,
+  })
+  create(@Body() createMeshDto: CreateMeshDto, @Request() req: ReqReturnDto) {
     return this.meshesService.create(createMeshDto, req.user.user_id);
   }
 
   @Get()
-  async findAll(@Request() req: ReqReturnDto) {
+  @ApiOperation({ summary: 'Lista todas as meshes do usuário autenticado.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de meshes.',
+    type: [Mesh],
+  })
+  findAll(@Request() req: ReqReturnDto) {
     return this.meshesService.findAll(req.user.user_id);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @Request() req: ReqReturnDto) {
+  @ApiOperation({ summary: 'Busca uma mesh específica do usuário.' })
+  @ApiParam({ name: 'id', description: 'ID da mesh.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Mesh encontrada.',
+    type: Mesh,
+  })
+  @ApiResponse({ status: 404, description: 'Mesh não encontrada.' })
+  findOne(@Param('id') id: string, @Request() req: ReqReturnDto) {
     return this.meshesService.findOne(id, req.user.user_id);
   }
 
   @Patch(':id')
-  async update(
+  @ApiOperation({ summary: 'Atualiza uma mesh do usuário.' })
+  @ApiParam({ name: 'id', description: 'ID da mesh.' })
+  @ApiBody({ type: UpdateMeshDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Mesh atualizada.',
+    type: Mesh,
+  })
+  @ApiResponse({ status: 404, description: 'Mesh não encontrada.' })
+  update(
     @Param('id') id: string,
     @Body() updateMeshDto: UpdateMeshDto,
     @Request() req: ReqReturnDto,
@@ -52,12 +91,29 @@ export class MeshesController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string, @Request() req: ReqReturnDto) {
+  @ApiOperation({ summary: 'Remove uma mesh do usuário.' })
+  @ApiParam({ name: 'id', description: 'ID da mesh.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Mesh removida.',
+    type: Mesh,
+  })
+  @ApiResponse({ status: 404, description: 'Mesh não encontrada.' })
+  remove(@Param('id') id: string, @Request() req: ReqReturnDto) {
     return this.meshesService.remove(id, req.user.user_id);
   }
 
   @Get(':meshId/zones')
-  async findZonesByMesh(
+  @ApiOperation({
+    summary: 'Lista as zones pertencentes a uma mesh do usuário.',
+  })
+  @ApiParam({ name: 'meshId', description: 'ID da mesh.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de zones da mesh.',
+    type: [Zone],
+  })
+  findZonesByMesh(
     @Param('meshId') meshId: string,
     @Request() req: ReqReturnDto,
   ) {

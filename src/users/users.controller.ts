@@ -12,14 +12,29 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Public } from '../auth/public.decorator';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiParam,
+} from '@nestjs/swagger';
 
 @Controller('users')
+@ApiTags('Users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Registra um novo usuário.' })
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Usuário criado com sucesso.',
+  })
   async create(@Body() createUserDto: CreateUserDto) {
     const user = await this.usersService.create(
       createUserDto.email,
@@ -34,6 +49,14 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Atualiza os dados de um usuário existente.' })
+  @ApiParam({ name: 'id', description: 'ID do usuário a ser atualizado.' })
+  @ApiBody({ type: UpdateUserDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Usuário atualizado com sucesso.',
+  })
+  @ApiBearerAuth()
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     // Validate that the DTO exists and has at least one field
     // console.log('Update User DTO:', updateUserDto);

@@ -1,89 +1,94 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { DeviceRole } from '@prisma/client';
-import { DeviceStatus } from '@prisma/client';
+import { DeviceRole, DeviceStatus } from '@prisma/client';
+import {
+  IsUUID,
+  IsOptional,
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsInt,
+  Min,
+  IsDate,
+} from 'class-validator';
 
 export class Device {
-  @ApiProperty({
-    example: '24:58:7C:CC:E5:B4',
-    description: 'Endereço MAC do dispositivo',
-  })
+  @ApiProperty({ example: 'a9e5d7c1-1234-4f8e-9b3e-5f4b1e7d2d11' })
+  @IsUUID()
+  id: string;
+
+  @ApiProperty({ example: '24:58:7C:CC:E5:B4' })
+  @IsString()
   macAddress: string;
 
-  @ApiProperty({
-    example: 'Luzes de Natal',
-    description: 'Nome a ser dado ao dispositivo',
-  })
+  @ApiProperty({ example: 'Luzes de Natal' })
+  @IsString()
   name: string;
 
   @ApiProperty({
     example: 'Controlador principal com acesso à rede AP',
-    description: 'Descrição do dispositivo',
     required: false,
   })
+  @IsOptional()
+  @IsString()
   description?: string | null;
 
-  @ApiProperty({
-    example: 5,
-    description: 'Posição X do dispositivo na malha',
-    required: false,
-  })
+  @ApiProperty({ example: 5 })
+  @IsNumber()
   x: number;
 
-  @ApiProperty({
-    example: 5,
-    description: 'Posição Y do dispositivo na malha',
-    required: false,
-  })
+  @ApiProperty({ example: 5 })
+  @IsNumber()
   y: number;
 
-  @ApiProperty({
-    example: DeviceStatus.ACTIVE,
-    description:
-      'Status do dispositivo, pode ser ACTIVE, PENDING ou INACTIVE. ACTIVE significa que o dispositivo está ativo e funcionando, PENDING significa que o dispositivo foi descoberto mas ainda não foi configurado, e INACTIVE significa que o dispositivo está inativo.',
-  })
-  status?: DeviceStatus;
+  @ApiProperty({ example: DeviceStatus.ACTIVE, enum: DeviceStatus })
+  @IsEnum(DeviceStatus)
+  status: DeviceStatus;
 
-  @ApiProperty({
-    example: DeviceRole.CONTROLLER,
-    description:
-      'Função do dispositivo na rede, pode ser CONTROLLER ou WORKER. CONTROLLER é o gateway que tem conexão direta com a rede Ethernet, enquanto WORKER são dispositivos que executam tarefas de maneira periódica.',
-  })
-  role?: DeviceRole;
+  @ApiProperty({ example: DeviceRole.CONTROLLER, enum: DeviceRole })
+  @IsEnum(DeviceRole)
+  role: DeviceRole;
 
-  @ApiProperty({
-    example: 'zone-id-123',
-    description: 'ID da zona a que o dispositivo pertence',
-    required: false,
-  })
+  @ApiProperty({ example: 'zone-id-123', required: false })
+  @IsOptional()
+  @IsString()
   zoneId?: string | null;
 
-  @ApiProperty({
-    example: '#FF0000',
-    description: 'Cor do dispositivo, usada para visualização no mapa',
-    required: false,
-  })
+  @ApiProperty({ example: '#FF0000', required: false })
+  @IsOptional()
+  @IsString()
   deviceColor?: string | null;
 
-  @ApiProperty({
-    example: 'mesh-id-123',
-    description:
-      'ID da malha a que o dispositivo pertence. Pode ser definida de maneira opcional durante o cadastro do dispositivo.',
-    required: false,
-  })
-  meshId?: string | null;
+  @ApiProperty({ example: 'user-id-123' })
+  @IsString()
+  userId: string;
+
+  @ApiProperty({ example: 2, required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  readingsPerBatch?: number | null;
+
+  @ApiProperty({ example: 3600, required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  wakeUpInterval?: number | null;
 
   @ApiProperty({
-    example: 2,
-    description: 'Número de leituras que o dispositivo deve enviar por lote.',
-    required: false,
+    example: '2025-08-25T12:34:56.000Z',
+    type: String,
+    format: 'date-time',
+    readOnly: true,
   })
-  readingsPerBatch: number | null;
+  @IsDate()
+  insDthr: Date;
 
   @ApiProperty({
-    example: 3600,
-    description:
-      'Intervalo de tempo em segundos entre os "wake ups" do dispositivo.',
-    required: false,
+    example: '2025-08-25T13:45:12.000Z',
+    type: String,
+    format: 'date-time',
+    readOnly: true,
   })
-  wakeUpInterval: number | null;
+  @IsDate()
+  altDthr: Date;
 }

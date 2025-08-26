@@ -6,14 +6,18 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
-import { Device } from './entities/device.entity';
+// import { Device } from './entities/device.entity';
+import { Device as PrismaDevice } from '@prisma/client';
 
 @Injectable()
 export class DevicesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createDeviceDto: CreateDeviceDto, userId: string) {
-    return await this.prisma.device.create({
+  async create(
+    createDeviceDto: CreateDeviceDto,
+    userId: string,
+  ): Promise<PrismaDevice> {
+    return this.prisma.device.create({
       data: {
         ...createDeviceDto,
         userId,
@@ -21,12 +25,12 @@ export class DevicesService {
     });
   }
 
-  async findAll() {
-    return await this.prisma.device.findMany();
+  async findAll(): Promise<PrismaDevice[]> {
+    return this.prisma.device.findMany();
   }
 
-  async findOne(id: string): Promise<Device | undefined | null> {
-    return await this.prisma.device.findUnique({
+  async findOne(id: string): Promise<PrismaDevice | null> {
+    return this.prisma.device.findUnique({
       where: { id },
     });
   }
@@ -34,19 +38,17 @@ export class DevicesService {
   async findDevicesByZone(
     zoneId: string,
     userId: string,
-  ): Promise<Device[] | undefined | null> {
-    return await this.prisma.device.findMany({
+  ): Promise<PrismaDevice[]> {
+    return this.prisma.device.findMany({
       where: {
         zoneId,
-        zone: { mesh: { userId } }, // A zone tem que pertencer ao usuário
+        zone: { mesh: { userId } },
       },
     });
   }
 
-  async findDevicesByUser(
-    userId: string,
-  ): Promise<Device[] | undefined | null> {
-    return await this.prisma.device.findMany({
+  async findDevicesByUser(userId: string): Promise<PrismaDevice[]> {
+    return this.prisma.device.findMany({
       where: { userId },
     });
   }
@@ -54,7 +56,7 @@ export class DevicesService {
   async findByMacAndUser(
     macAddress: string,
     userId: string,
-  ): Promise<Device | undefined | null> {
+  ): Promise<PrismaDevice> {
     const device = await this.prisma.device.findFirst({
       where: { macAddress, userId },
     });
@@ -64,8 +66,11 @@ export class DevicesService {
     return device;
   }
 
-  async update(id: string, updateDeviceDto: UpdateDeviceDto, userId: string) {
-    // Only allow update if device belongs to user
+  async update(
+    id: string,
+    updateDeviceDto: UpdateDeviceDto,
+    userId: string,
+  ): Promise<PrismaDevice> {
     const device = await this.prisma.device.findUnique({ where: { id } });
     if (!device) {
       throw new NotFoundException('Device not found');
@@ -75,14 +80,13 @@ export class DevicesService {
         'You do not have permission to update this device',
       );
     }
-    return await this.prisma.device.update({
+    return this.prisma.device.update({
       where: { id },
       data: updateDeviceDto,
     });
   }
 
-  async remove(id: string, userId: string) {
-    // Only allow delete if device belongs to user
+  async remove(id: string, userId: string): Promise<PrismaDevice> {
     const device = await this.prisma.device.findUnique({ where: { id } });
     if (!device || device.userId !== userId) {
       throw new Error('Device not found or access denied');

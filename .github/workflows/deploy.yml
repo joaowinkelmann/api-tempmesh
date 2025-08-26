@@ -25,6 +25,9 @@ jobs:
       - name: Run tests
         run: bun test
 
+      - name: Run E2E tests
+        run: bun run test:e2e
+
   deploy:
     name: Deploy over SSH
     runs-on: ubuntu-latest

@@ -75,4 +75,10 @@ export class ReadingsService {
       unregisteredCount: readings.data.length - result.count,
     };
   }
+
+  async remove(id: string) {
+    await this.prisma.reading.delete({
+      where: { id },
+    });
+  }
 }

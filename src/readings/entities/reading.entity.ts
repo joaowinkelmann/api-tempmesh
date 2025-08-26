@@ -1,32 +1,35 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMACAddress, IsNumber, IsRFC3339 } from 'class-validator';
+import { IsUUID, IsOptional, IsNumber, IsDateString } from 'class-validator';
 
 export class Reading {
-  @ApiProperty({
-    description: 'Endereço MAC do dispositivo que realizou a leitura.',
-    example: 'AA:BB:CC:DD:EE:01',
-  })
-  @IsMACAddress()
-  mac: string;
+  @ApiProperty({ example: 'f3d9a7b2-1c4e-4b89-8d21-9a7e6c5b4d32' })
+  @IsUUID()
+  id: string;
 
-  @ApiProperty({
-    description: 'Temperatura aferida em graus Celsius.',
-    example: 25.5,
-  })
-  @IsNumber()
-  temp: number;
-
-  @ApiProperty({
-    description: 'Umidade relativa do ar em porcentagem.',
-    example: 60.2,
-  })
-  @IsNumber()
-  hum: number;
-
-  @ApiProperty({
-    description: 'Timestamp da leitura no formato RFC3339.',
-    example: '2024-08-22T10:00:00Z',
-  })
-  @IsRFC3339()
+  @ApiProperty({ example: '2025-08-25T12:34:56.000Z' })
+  @IsDateString()
   readingTime: string;
+
+  @ApiProperty({ example: 25.5, required: false })
+  @IsOptional()
+  @IsNumber()
+  temperature?: number | null;
+
+  @ApiProperty({ example: 60.2, required: false })
+  @IsOptional()
+  @IsNumber()
+  humidity?: number | null;
+
+  @ApiProperty({ example: 'device-id-123', required: false })
+  @IsOptional()
+  @IsUUID()
+  deviceId?: string | null;
+
+  @ApiProperty({ example: '2025-08-25T12:34:56.000Z' })
+  @IsDateString()
+  insDthr: string;
+
+  @ApiProperty({ example: '2025-08-25T13:10:11.000Z' })
+  @IsDateString()
+  altDthr: string;
 }
