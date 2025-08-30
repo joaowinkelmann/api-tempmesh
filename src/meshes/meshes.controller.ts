@@ -45,7 +45,7 @@ export class MeshesController {
     type: Mesh,
   })
   create(@Body() createMeshDto: CreateMeshDto, @Request() req: ReqReturnDto) {
-    return this.meshesService.create(createMeshDto, req.user.user_id);
+    return this.meshesService.create(createMeshDto, req.user.id);
   }
 
   @Get()
@@ -56,7 +56,7 @@ export class MeshesController {
     type: [Mesh],
   })
   findAll(@Request() req: ReqReturnDto) {
-    return this.meshesService.findAll(req.user.user_id);
+    return this.meshesService.findAll(req.user.id);
   }
 
   @Get(':id')
@@ -69,7 +69,7 @@ export class MeshesController {
   })
   @ApiResponse({ status: 404, description: 'Mesh não encontrada.' })
   findOne(@Param('id') id: string, @Request() req: ReqReturnDto) {
-    return this.meshesService.findOne(id, req.user.user_id);
+    return this.meshesService.findOne(id, req.user.id);
   }
 
   @Patch(':id')
@@ -87,7 +87,7 @@ export class MeshesController {
     @Body() updateMeshDto: UpdateMeshDto,
     @Request() req: ReqReturnDto,
   ) {
-    return this.meshesService.update(id, updateMeshDto, req.user.user_id);
+    return this.meshesService.update(id, updateMeshDto, req.user.id);
   }
 
   @Delete(':id')
@@ -100,7 +100,7 @@ export class MeshesController {
   })
   @ApiResponse({ status: 404, description: 'Mesh não encontrada.' })
   remove(@Param('id') id: string, @Request() req: ReqReturnDto) {
-    return this.meshesService.remove(id, req.user.user_id);
+    return this.meshesService.remove(id, req.user.id);
   }
 
   @Get(':meshId/zones')
@@ -117,6 +117,6 @@ export class MeshesController {
     @Param('meshId') meshId: string,
     @Request() req: ReqReturnDto,
   ) {
-    return this.zonesService.findZonesByMesh(meshId, req.user.user_id);
+    return this.zonesService.findZonesByMesh(meshId, req.user.id);
   }
 }

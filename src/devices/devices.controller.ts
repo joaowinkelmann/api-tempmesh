@@ -43,7 +43,7 @@ export class DevicesController {
     @Body() createDeviceDto: CreateDeviceDto,
     @Request() req: ReqReturnDto,
   ) {
-    return this.devicesService.create(createDeviceDto, req.user.user_id);
+    return this.devicesService.create(createDeviceDto, req.user.id);
   }
 
   @ApiResponse({
@@ -73,7 +73,7 @@ export class DevicesController {
     @Param('macAddress') macAddress: string,
     @Request() req: ReqReturnDto,
   ): Promise<Device> {
-    return this.devicesService.findByMacAndUser(macAddress, req.user.user_id);
+    return this.devicesService.findByMacAndUser(macAddress, req.user.id);
   }
 
   @ApiResponse({
@@ -101,13 +101,11 @@ export class DevicesController {
     @Body() updateDeviceDto: UpdateDeviceDto,
     @Request() req: ReqReturnDto,
   ) {
-    console.log('Request user:', req.user);
-    
-    if (!req.user?.user_id) {
+    if (!req.user?.id) {
       throw new UnauthorizedException('User not authenticated');
     }
     
-    return this.devicesService.update(id, updateDeviceDto, req.user.user_id);
+    return this.devicesService.update(id, updateDeviceDto, req.user.id);
   }
 
   @UseGuards(AuthGuard)
@@ -116,6 +114,6 @@ export class DevicesController {
     summary: 'Deleta um dispositivo pertencente ao usuário logado.',
   })
   async remove(@Param('id') id: string, @Request() req: ReqReturnDto) {
-    return this.devicesService.remove(id, req.user.user_id);
+    return this.devicesService.remove(id, req.user.id);
   }
 }
