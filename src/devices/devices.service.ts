@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
@@ -11,6 +12,7 @@ import { Device as PrismaDevice } from '@prisma/client';
 
 @Injectable()
 export class DevicesService {
+  private readonly logger = new Logger(DevicesService.name);
   constructor(private readonly prisma: PrismaService) {}
 
   async create(
@@ -76,6 +78,9 @@ export class DevicesService {
       throw new NotFoundException('Device not found');
     }
     if (device.userId !== userId) {
+      this.logger.warn(
+        `User ${userId} attempted to update device ${id} without permission. Device owner: ${device.userId}`,
+      );
       throw new UnauthorizedException(
         'You do not have permission to update this device',
       );
