@@ -55,7 +55,7 @@ export class DevicesController {
   @UseGuards(AuthGuard)
   @Get()
   async findDevicesByUser(@Request() req: ReqReturnDto) {
-    return this.devicesService.findDevicesByUser(req.user.user_id);
+    return this.devicesService.findDevicesByUser(req.user.id);
   }
 
   @ApiResponse({
