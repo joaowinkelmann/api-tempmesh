@@ -96,8 +96,8 @@ model Device {
   role   DeviceRole   @default(WORKER)
 
   // Dispositivo vai sempre pertencer a uma Mesh
-  meshId String @map("mesh_id")
-  mesh   Mesh   @relation(fields: [meshId], references: [id], onDelete: Cascade)
+  meshId String? @map("mesh_id")
+  mesh   Mesh?   @relation(fields: [meshId], references: [id], onDelete: SetNull)
 
   // Zona pode ser nula, indicando que o dispositivo não está atribuído a nenhuma zona específica
   zoneId String? @map("zone_id")
