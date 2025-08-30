@@ -9,6 +9,8 @@ import {
   HttpCode,
   HttpStatus,
   Delete,
+  Patch,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { DevicesService } from './devices.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
@@ -86,13 +88,25 @@ export class DevicesController {
   }
 
   @UseGuards(AuthGuard)
-  @ApiOperation({ summary: 'Atualiza um item pertencente a um usuário.' })
-  @Post('/update/:id')
+  @Patch(':id')
+  @ApiOperation({ summary: 'Atualiza um dispositivo pertencente ao usuário logado.' })
+  @ApiBody({ type: UpdateDeviceDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Dispositivo atualizado com sucesso.',
+    type: Device,
+  })
   async update(
     @Param('id') id: string,
     @Body() updateDeviceDto: UpdateDeviceDto,
     @Request() req: ReqReturnDto,
   ) {
+    console.log('Request user:', req.user);
+    
+    if (!req.user?.user_id) {
+      throw new UnauthorizedException('User not authenticated');
+    }
+    
     return this.devicesService.update(id, updateDeviceDto, req.user.user_id);
   }
 
