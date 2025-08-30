@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   Post,
-  Patch,
   Body,
   Param,
   UseGuards,
@@ -88,7 +87,7 @@ export class DevicesController {
 
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Atualiza um item pertencente a um usuário.' })
-  @Patch(':id')
+  @Post('/update/:id')
   async update(
     @Param('id') id: string,
     @Body() updateDeviceDto: UpdateDeviceDto,
