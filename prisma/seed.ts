@@ -67,6 +67,7 @@ async function main() {
       status: DeviceStatus.ACTIVE,
       role: DeviceRole.CONTROLLER,
       userId: user.id,
+      meshId: mesh.id,
       deviceColor: '#FF0000',
       readingsPerBatch: 2,
       wakeUpInterval: 60 * 60, // 1 hora
@@ -88,6 +89,7 @@ async function main() {
       status: DeviceStatus.ACTIVE,
       role: DeviceRole.WORKER,
       userId: user.id,
+      meshId: mesh.id,
       deviceColor: '#00FF00',
       readingsPerBatch: 1,
       wakeUpInterval: 60 * 30, // 30 minutos
@@ -107,6 +109,7 @@ async function main() {
       status: DeviceStatus.PENDING,
       role: DeviceRole.WORKER,
       userId: user.id,
+      meshId: mesh.id,
       deviceColor: '#0000FF',
       readingsPerBatch: 1,
       wakeUpInterval: 60 * 60 * 2, // 2 horas

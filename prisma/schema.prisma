@@ -47,6 +47,9 @@ model Mesh {
   // Uma Mesh tem várias Zones
   zones Zone[]
 
+  // Uma Mesh tem vários Devices
+  devices Device[]
+
   @@map("mesh")
 }
 
@@ -92,7 +95,11 @@ model Device {
   status DeviceStatus @default(PENDING)
   role   DeviceRole   @default(WORKER)
 
-  // Dispositivo vai sempre pertencer a uma Mesh, mas a zona pode ser opcional
+  // Dispositivo vai sempre pertencer a uma Mesh
+  meshId String @map("mesh_id")
+  mesh   Mesh   @relation(fields: [meshId], references: [id], onDelete: Cascade)
+
+  // Zona pode ser nula, indicando que o dispositivo não está atribuído a nenhuma zona específica
   zoneId String? @map("zone_id")
   zone   Zone?   @relation(fields: [zoneId], references: [id], onDelete: SetNull)
 
