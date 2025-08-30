@@ -68,10 +68,10 @@ export class DevicesController {
   @UseGuards(AuthGuard)
   @Get('mac/:macAddress')
   async findByMacAndUser(
-    macAddress: string,
-    userId: string,
+    @Param('macAddress') macAddress: string,
+    @Request() req: ReqReturnDto,
   ): Promise<Device> {
-    return this.devicesService.findByMacAndUser(macAddress, userId);
+    return this.devicesService.findByMacAndUser(macAddress, req.user.user_id);
   }
 
   @ApiResponse({
