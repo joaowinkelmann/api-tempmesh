@@ -160,7 +160,7 @@ export class DevicesService {
   async findByMacAndUser(
     macAddress: string,
     userId: string,
-  ): Promise<PrismaDevice> {
+  ): Promise<PrismaDevice | false> {
     this.logger.log(`Searching for device with MAC ${macAddress} for user ${userId}`);
 
     if (!macAddress) {
@@ -179,16 +179,16 @@ export class DevicesService {
 
       if (!device) {
         this.logger.warn(`Device not found with MAC ${macAddress} for user ${userId}`);
-        throw new NotFoundException('Device not found');
+        return false;
       }
 
       this.logger.log(`Device found: ${device.id} (${device.name}) with MAC ${macAddress} for user ${userId}`);
       return device;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
       this.logger.error(`Failed to find device with MAC ${macAddress} for user ${userId}: ${error.message}`);
+      if (error instanceof NotFoundException) {
+        return false;
+      }
       throw error;
     }
   }
