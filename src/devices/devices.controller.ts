@@ -72,7 +72,7 @@ export class DevicesController {
   async findByMacAndUser(
     @Param('macAddress') macAddress: string,
     @Request() req: ReqReturnDto,
-  ): Promise<Device> {
+  ): Promise<Device | false> {
     return this.devicesService.findByMacAndUser(macAddress, req.user.id);
   }
 
