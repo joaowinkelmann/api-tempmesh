@@ -15,6 +15,7 @@ import { UpdateMeshDto } from './dto/update-mesh.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { ZonesService } from '../zones/zones.service';
 import { ReqReturnDto } from '../auth/dto/req-return.dto';
+import { DevicesService } from '../devices/devices.service';
 import {
   ApiBearerAuth,
   ApiTags,
@@ -34,6 +35,7 @@ export class MeshesController {
   constructor(
     private readonly meshesService: MeshesService,
     private readonly zonesService: ZonesService,
+    private readonly devicesService: DevicesService,
   ) {}
 
   @Post()
@@ -118,5 +120,17 @@ export class MeshesController {
     @Request() req: ReqReturnDto,
   ) {
     return this.zonesService.findZonesByMesh(meshId, req.user.id);
+  }
+
+  @ApiOperation({
+    summary: 'Busca todos os dispositivos vinculados a uma mesh específica.',
+  })
+  @Get(':meshId/devices')
+  @UseGuards(AuthGuard)
+  findDevicesByZone(
+    @Param('meshId') meshId: string,
+    @Request() req: ReqReturnDto,
+  ) {
+    return this.devicesService.findDevicesByMesh(meshId, req.user.id);
   }
 }

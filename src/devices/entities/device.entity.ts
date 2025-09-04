@@ -53,6 +53,11 @@ export class Device {
   @IsString()
   zoneId?: string | null;
 
+  @ApiProperty({ example: 'mesh-123', required: false })
+  @IsOptional()
+  @IsString()
+  meshId?: string | null;
+
   @ApiProperty({ example: '#FF0000', required: false })
   @IsOptional()
   @IsString()

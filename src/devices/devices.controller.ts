@@ -89,7 +89,9 @@ export class DevicesController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  @ApiOperation({ summary: 'Atualiza um dispositivo pertencente ao usuário logado.' })
+  @ApiOperation({
+    summary: 'Atualiza um dispositivo pertencente ao usuário logado.',
+  })
   @ApiBody({ type: UpdateDeviceDto })
   @ApiResponse({
     status: 200,
@@ -104,7 +106,7 @@ export class DevicesController {
     if (!req.user?.id) {
       throw new UnauthorizedException('User not authenticated');
     }
-    
+
     return this.devicesService.update(id, updateDeviceDto, req.user.id);
   }
 
