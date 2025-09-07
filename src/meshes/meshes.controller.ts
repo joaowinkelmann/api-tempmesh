@@ -8,7 +8,10 @@ import {
   Delete,
   Request,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import type { Express } from 'express';
 import { MeshesService } from './meshes.service';
 import { CreateMeshDto } from './dto/create-mesh.dto';
 import { UpdateMeshDto } from './dto/update-mesh.dto';
@@ -23,9 +26,11 @@ import {
   ApiResponse,
   ApiBody,
   ApiParam,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { Mesh } from './entities/mesh.entity';
 import { Zone } from '../zones/entities/zone.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(AuthGuard)
 @ApiBearerAuth()
@@ -132,5 +137,29 @@ export class MeshesController {
     @Request() req: ReqReturnDto,
   ) {
     return this.devicesService.findDevicesByMesh(meshId, req.user.id);
+  }
+
+  @Post('upload-map')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary:
+      'Faz upload de uma imagem de mapa, gera quadrantes (z/x/y.webp) e envia ao OCI Object Storage.',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: { type: 'string', format: 'binary' },
+        meshId: { type: 'string', nullable: false },
+      },
+    },
+  })
+  async uploadMap(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('meshId') meshId: string,
+    @Request() req: ReqReturnDto,
+  ) {
+    return this.meshesService.uploadMap(file, req?.user?.id, meshId);
   }
 }

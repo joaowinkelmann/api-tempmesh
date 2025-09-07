@@ -4,6 +4,8 @@ import { MeshesService } from './meshes.service';
 import { ZonesService } from '../zones/zones.service';
 import { DevicesService } from '../devices/devices.service';
 import { PrismaService } from '../../prisma/prisma.service';
+import { TilerService } from '../tiler/tiler.service';
+import { UploaderService } from '../uploader/uploader.service';
 
 describe('MeshesController', () => {
   let controller: MeshesController;
@@ -16,6 +18,8 @@ describe('MeshesController', () => {
         { provide: ZonesService, useValue: {} },
         { provide: DevicesService, useValue: {} },
         { provide: PrismaService, useValue: {} },
+        { provide: TilerService, useValue: { makeTilesFromImageBuffer: jest.fn() } },
+        { provide: UploaderService, useValue: { uploadDirectory: jest.fn(), getBaseUrl: jest.fn() } },
       ],
     }).compile();
 

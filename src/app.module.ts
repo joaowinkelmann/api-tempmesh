@@ -10,6 +10,8 @@ import { HealthModule } from './health/health.module';
 import { MeshesModule } from './meshes/meshes.module';
 import { ZonesModule } from './zones/zones.module';
 import { DevicesModule } from './devices/devices.module';
+import { UploaderModule } from './uploader/uploader.module';
+import { TilerService } from './tiler/tiler.service';
 
 @Module({
   imports: [
@@ -20,6 +22,7 @@ import { DevicesModule } from './devices/devices.module';
     MeshesModule,
     ZonesModule,
     DevicesModule,
+    UploaderModule,
   ],
   controllers: [AppController],
   providers: [
@@ -29,6 +32,7 @@ import { DevicesModule } from './devices/devices.module';
       provide: 'APP_GUARD',
       useClass: AuthGuard,
     },
+    TilerService,
   ],
   exports: [PrismaService],
 })
