@@ -21,10 +21,14 @@ export class TilerService {
 
   async makeTilesFromImageBuffer(buffer: Buffer, meshId?: string): Promise<TileResult> {
     this.logger.debug(`Starting tile generation from image buffer: length=${buffer.length} meshId=${meshId}`);
-    // Prefer a short, deterministic id when meshId is present; otherwise random
-    const id = meshId
-      ? crypto.createHash('sha256').update(`mesh:${meshId}`).digest('hex').slice(0, 40)
-      : crypto.randomUUID();
+    // // Prefer a short, deterministic id when meshId is present; otherwise random
+    // const id = meshId
+    //   ? crypto.createHash('sha256').update(`mesh:${meshId}`).digest('hex').slice(0, 40)
+    //   : crypto.randomUUID();
+
+    // Removed update based on meshId, avoiding cache-miss when we change the background image. This way, we ensure a different URL every time the tile is updated.
+    const id = crypto.randomUUID();
+
     const prefix = `custom-maps/${id}`;
 
     // Configurable output format (default webp for better size), quality/effort
@@ -48,18 +52,29 @@ export class TilerService {
       throw new Error('Invalid image: missing dimensions');
     }
 
-    const tileSize = 256;
-    // Always build up to a fixed max zoom (inclusive). Default: 3.
+    // Tile size (default 256)
+    const tileSize = Number.isFinite(Number(process.env.MAP_TILE_SIZE))
+      ? Math.max(64, Math.min(1024, Number(process.env.MAP_TILE_SIZE)))
+      : 256;
+
+    // Compute an auto maxZoom so the image uses as many world tiles as possible at the top level.
+    // World tiles per axis at z is 2^z. We want 2^z >= ceil(dim / tileSize).
+    const tilesXNative = Math.max(1, Math.ceil(width / tileSize));
+    const tilesYNative = Math.max(1, Math.ceil(height / tileSize));
+    const autoMaxZoom = Math.ceil(Math.log2(Math.max(tilesXNative, tilesYNative)));
+
+    // Always build up to a fixed max zoom (inclusive). Default is auto; override with MAP_MAX_ZOOM if numeric.
+    const envMaxZoom = process.env.MAP_MAX_ZOOM;
     const maxZoom =
-      Number.isFinite(Number(process.env.MAP_MAX_ZOOM))
-        ? Math.max(0, Number(process.env.MAP_MAX_ZOOM))
-        : 3;
+      envMaxZoom && Number.isFinite(Number(envMaxZoom))
+        ? Math.max(0, Number(envMaxZoom))
+        : Math.max(0, autoMaxZoom);
 
     const tmpDir = await fs.promises.mkdtemp(
       path.join(os.tmpdir(), `tempmesh-tiles-${id}-`),
     );
 
-    this.logger.debug(`Generating tiles up to maxZoom=${maxZoom} (levels 0..${maxZoom})`);
+    this.logger.debug(`Generating tiles up to maxZoom=${maxZoom} (levels 0..${maxZoom}), tileSize=${tileSize}`);
 
     // Generate pyramid: z = 0..maxZoom (z=maxZoom uses original dimensions)
     for (let z = 0; z <= maxZoom; z++) {
@@ -67,10 +82,10 @@ export class TilerService {
       const targetW = Math.max(1, Math.round(width * scale));
       const targetH = Math.max(1, Math.round(height * scale));
 
-      // Resize, then read actual dims (guard against internal rounding)
-      const resizedBuf = await sharp(buffer)
-        .rotate()
-        .resize(targetW, targetH, { fit: 'fill', withoutEnlargement: true })
+      // Resize once from the normalized base; preserve AR
+      const resizedBuf = await base
+        .clone()
+        .resize(targetW, targetH, { fit: 'inside', withoutEnlargement: true })
         .png()
         .toBuffer();
 
@@ -78,33 +93,57 @@ export class TilerService {
       const rW = rMeta.width ?? targetW;
       const rH = rMeta.height ?? targetH;
 
-      // Pad to exact multiples of 256 based on actual resized size
-      const paddedW = Math.ceil(rW / tileSize) * tileSize;
-      const paddedH = Math.ceil(rH / tileSize) * tileSize;
+      // Define the world canvas for this zoom (pixel space). We won’t allocate the full canvas; we’ll
+      // compute the minimal bounding tile region and composite into that to avoid huge buffers.
+      const worldTiles = 2 ** z;
+      const canvasWorldW = worldTiles * tileSize;
+      const canvasWorldH = worldTiles * tileSize;
 
-      const extendedBuf = await sharp(resizedBuf)
-        .extend({
-          left: 0,
-          top: 0,
-          right: paddedW - rW,
-          bottom: paddedH - rH,
+      // Center the resized image in pixel space (not in tile units) to avoid half-tile rounding.
+      const leftWorldPx = Math.floor((canvasWorldW - rW) / 2);
+      const topWorldPx = Math.floor((canvasWorldH - rH) / 2);
+
+      // Compute the minimal world tile range that intersects the image
+      const minX = Math.max(0, Math.floor(leftWorldPx / tileSize));
+      const maxX = Math.min(worldTiles - 1, Math.ceil((leftWorldPx + rW) / tileSize) - 1);
+      const minY = Math.max(0, Math.floor(topWorldPx / tileSize));
+      const maxY = Math.min(worldTiles - 1, Math.ceil((topWorldPx + rH) / tileSize) - 1);
+
+      const spanX = Math.max(0, maxX - minX + 1);
+      const spanY = Math.max(0, maxY - minY + 1);
+
+      if (spanX === 0 || spanY === 0) {
+        continue; // nothing visible at this zoom
+      }
+
+      // Build a small local canvas covering just the intersecting tile region
+      const localCanvasW = spanX * tileSize;
+      const localCanvasH = spanY * tileSize;
+
+      // Position of the image inside the local canvas
+      const localLeft = leftWorldPx - minX * tileSize;
+      const localTop = topWorldPx - minY * tileSize;
+
+      const composedBuf = await sharp({
+        create: {
+          width: localCanvasW,
+          height: localCanvasH,
+          channels: 4,
           background: { r: 0, g: 0, b: 0, alpha: 0 },
-        })
+        },
+      })
+        .composite([{ input: resizedBuf, left: localLeft, top: localTop }])
         .png()
         .toBuffer();
 
-      const eMeta = await sharp(extendedBuf).metadata();
-      const eW = eMeta.width ?? paddedW;
-      const eH = eMeta.height ?? paddedH;
+      for (let lx = 0; lx < spanX; lx++) {
+        for (let ly = 0; ly < spanY; ly++) {
+          const worldX = minX + lx;
+          const worldY = minY + ly;
 
-      const xTiles = Math.floor(eW / tileSize);
-      const yTiles = Math.floor(eH / tileSize);
-
-      for (let x = 0; x < xTiles; x++) {
-        for (let y = 0; y < yTiles; y++) {
-          let tileSharp = sharp(extendedBuf).extract({
-            left: x * tileSize,
-            top: y * tileSize,
+          let tileSharp = sharp(composedBuf).extract({
+            left: lx * tileSize,
+            top: ly * tileSize,
             width: tileSize,
             height: tileSize,
           });
@@ -115,9 +154,9 @@ export class TilerService {
             tileSharp = tileSharp.png({ compressionLevel: 9 });
           }
 
-          const outDir = path.join(tmpDir, `${z}`, `${x}`);
+          const outDir = path.join(tmpDir, `${z}`, `${worldX}`);
           await fs.promises.mkdir(outDir, { recursive: true });
-          const outPath = path.join(outDir, `${y}.${ext}`);
+          const outPath = path.join(outDir, `${worldY}.${ext}`);
           await tileSharp.toFile(outPath);
         }
       }
