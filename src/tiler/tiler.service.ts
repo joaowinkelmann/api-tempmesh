@@ -49,11 +49,11 @@ export class TilerService {
     }
 
     const tileSize = 256;
-    // Always build up to a fixed max zoom (inclusive). Default: 7.
+    // Always build up to a fixed max zoom (inclusive). Default: 3.
     const maxZoom =
       Number.isFinite(Number(process.env.MAP_MAX_ZOOM))
         ? Math.max(0, Number(process.env.MAP_MAX_ZOOM))
-        : 7;
+        : 3;
 
     const tmpDir = await fs.promises.mkdtemp(
       path.join(os.tmpdir(), `tempmesh-tiles-${id}-`),
