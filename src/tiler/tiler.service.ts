@@ -19,7 +19,6 @@ export interface TileResult {
 export class TilerService {
   private readonly logger = new Logger(TilerService.name);
 
-  // meshId is optional now
   async makeTilesFromImageBuffer(buffer: Buffer, meshId?: string): Promise<TileResult> {
     this.logger.debug(`Starting tile generation from image buffer: length=${buffer.length} meshId=${meshId}`);
     // Prefer a short, deterministic id when meshId is present; otherwise random
@@ -50,14 +49,19 @@ export class TilerService {
     }
 
     const tileSize = 256;
-    const maxDim = Math.max(width, height);
-    const maxZoom = Math.max(0, Math.ceil(Math.log2(maxDim / tileSize)));
+    // Always build up to a fixed max zoom (inclusive). Default: 7.
+    const maxZoom =
+      Number.isFinite(Number(process.env.MAP_MAX_ZOOM))
+        ? Math.max(0, Number(process.env.MAP_MAX_ZOOM))
+        : 7;
 
     const tmpDir = await fs.promises.mkdtemp(
       path.join(os.tmpdir(), `tempmesh-tiles-${id}-`),
     );
 
-    // Generate pyramid: z = 0..maxZoom
+    this.logger.debug(`Generating tiles up to maxZoom=${maxZoom} (levels 0..${maxZoom})`);
+
+    // Generate pyramid: z = 0..maxZoom (z=maxZoom uses original dimensions)
     for (let z = 0; z <= maxZoom; z++) {
       const scale = 1 / Math.pow(2, maxZoom - z);
       const targetW = Math.max(1, Math.round(width * scale));
