@@ -1,4 +1,4 @@
-import { Controller, Get, Redirect } from '@nestjs/common';
+import { Controller, Get, Res } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Public } from './auth/public.decorator';
 import { ApiOperation } from '@nestjs/swagger';
@@ -12,9 +12,8 @@ export class AppController {
   @ApiOperation({
     summary: 'Redireciona para a documentação da API. (Essa página)',
   })
-  @Redirect('/tempmesh/api/docs', 302)
-  getHello() {
-    // return this.appService.getHello();
+  getHello(@Res() res) {
     // Agora redireciona para a documentação em /docs
+    res.status(302).redirect('/tempmesh/api/docs');
   }
 }
