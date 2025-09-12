@@ -16,4 +16,15 @@ export class AppController {
     // Agora redireciona para a documentação em /docs
     res.status(302).redirect('/tempmesh/api/docs');
   }
+
+  @Public()
+  @Get('/sendmailtest')
+  async sendMailer(@Res() response: any) {
+    const mail = await this.appService.sendMail();
+
+    return response.status(200).send({
+      message: 'success',
+      mail,
+    });
+  }
 }

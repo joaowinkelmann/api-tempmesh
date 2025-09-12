@@ -12,6 +12,9 @@ import { ZonesModule } from './zones/zones.module';
 import { DevicesModule } from './devices/devices.module';
 import { UploaderModule } from './uploader/uploader.module';
 import { TilerService } from './tiler/tiler.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MailerModule } from '@nestjs-modules/mailer';
+
 
 @Module({
   imports: [
@@ -23,6 +26,24 @@ import { TilerService } from './tiler/tiler.service';
     ZonesModule,
     DevicesModule,
     UploaderModule,
+    ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        transport: {
+          host: config.get<string>('OCI_EMAIL_HOSTNAME'),
+          port: 587,
+          auth: {
+            user: config.get<string>('OCI_EMAIL_USERNAME'),
+            pass: config.get<string>('OCI_EMAIL_PASSWORD'),
+          },
+        },
+        defaults: {
+          from: '"No Reply" <noreply@winkels.com.br>',
+        },
+      }),
+    }),
   ],
   controllers: [AppController],
   providers: [

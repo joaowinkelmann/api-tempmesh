@@ -59,7 +59,6 @@ export class UsersController {
   @ApiBearerAuth()
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     // Validate that the DTO exists and has at least one field
-    // console.log('Update User DTO:', updateUserDto);
     if (!updateUserDto || Object.keys(updateUserDto).length === 0) {
       throw new BadRequestException('Update data is required');
     }
