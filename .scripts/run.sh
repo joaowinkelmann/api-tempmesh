@@ -85,7 +85,7 @@ if pm2 show $APP_NAME &> /dev/null; then
   pm2 restart $APP_NAME || handle_error "Failed to restart application with PM2"
 else
   log "Starting $APP_NAME application..."
-  pm2 start bun --name "$APP_NAME" -- run start:prod || handle_error "Failed to start application with PM2"
+  pm2 start pm2.config.cjs || handle_error "Failed to start application with PM2"
 fi
 
 # Save PM2 configuration and setup startup
