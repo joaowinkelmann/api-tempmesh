@@ -13,8 +13,10 @@ export class SignInDto {
 }
 
 export class SignInResponseDto {
+  @ApiProperty()
   user: ValidatePasswordDto;
 
+  @ApiProperty({ example: 'your-jwt-token' })
   @IsString()
   @IsNotEmpty()
   access_token: string;

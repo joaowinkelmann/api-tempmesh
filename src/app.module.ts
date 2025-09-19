@@ -14,10 +14,14 @@ import { UploaderModule } from './uploader/uploader.module';
 import { TilerService } from './tiler/tiler.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { ScheduleModule } from '@nestjs/schedule';
+import { DeviceCheckerModule } from './device-checker/device-checker.module';
+import { MailerModule } from './mailer/mailer.module';
 
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ReadingsModule,
     AuthModule,
     UsersModule,
@@ -44,6 +48,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
         },
       }),
     }),
+    DeviceCheckerModule,
+    MailerModule,
   ],
   controllers: [AppController],
   providers: [
