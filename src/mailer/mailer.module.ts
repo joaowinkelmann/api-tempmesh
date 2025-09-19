@@ -7,4 +7,4 @@ import { PrismaModule } from '../../prisma/prisma.module';
   providers: [MailerService],
   exports: [MailerService],
 })
-export class MailerModule {}
+export class MailerServiceModule {}

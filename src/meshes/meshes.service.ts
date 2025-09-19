@@ -10,7 +10,7 @@ import * as path from 'node:path';
 
 @Injectable()
 export class MeshesService {
-    private readonly logger = new Logger(MeshesService.name);
+  private readonly logger = new Logger(MeshesService.name);
   constructor(
     private prisma: PrismaService,
     private tiler: TilerService,
@@ -67,8 +67,7 @@ export class MeshesService {
 
     // Support both memory and disk storage
     const buffer =
-      file.buffer ??
-      (file.path ? await fs.readFile(file.path) : undefined);
+      file.buffer ?? (file.path ? await fs.readFile(file.path) : undefined);
 
     if (!buffer) {
       throw new BadRequestException('Invalid upload: empty file buffer');
@@ -83,11 +82,15 @@ export class MeshesService {
       await this.uploader.uploadDirectory(prefix, tmpDir);
     } finally {
       // cleanup temp dir and uploaded file (when using disk storage)
-      await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => undefined);
+      await fs
+        .rm(tmpDir, { recursive: true, force: true })
+        .catch(() => undefined);
       if (file.path) {
         const dir = path.dirname(file.path);
         await fs.rm(file.path, { force: true }).catch(() => undefined);
-        await fs.rm(dir, { recursive: true, force: true }).catch(() => undefined);
+        await fs
+          .rm(dir, { recursive: true, force: true })
+          .catch(() => undefined);
       }
     }
 
@@ -107,7 +110,9 @@ export class MeshesService {
         });
         // this.logger.debug(`Updated mesh: ${JSON.stringify(updated_mesh)}`);
       } else {
-        this.logger.warn(`Mesh ${meshId} not found for user ${userId}; not updating mapUrl`);
+        this.logger.warn(
+          `Mesh ${meshId} not found for user ${userId}; not updating mapUrl`,
+        );
       }
     }
 

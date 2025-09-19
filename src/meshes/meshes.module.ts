@@ -10,6 +10,12 @@ import { TilerService } from '../tiler/tiler.service';
 @Module({
   imports: [UploaderModule],
   controllers: [MeshesController],
-  providers: [MeshesService, PrismaService, ZonesService, DevicesService, TilerService],
+  providers: [
+    MeshesService,
+    PrismaService,
+    ZonesService,
+    DevicesService,
+    TilerService,
+  ],
 })
 export class MeshesModule {}

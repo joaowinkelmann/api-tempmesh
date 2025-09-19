@@ -68,7 +68,9 @@ export class DeviceCheckerService {
             where: { id: device.id },
             data: { status: DeviceStatus.INACTIVE },
           });
-          this.logger.log(`Device ${device.name} (${device.id}) marked as inactive.`);
+          this.logger.log(
+            `Device ${device.name} (${device.id}) marked as inactive.`,
+          );
         }
       } else {
         // If device has no readings, check its creation date
@@ -77,7 +79,9 @@ export class DeviceCheckerService {
             where: { id: device.id },
             data: { status: DeviceStatus.INACTIVE },
           });
-          this.logger.log(`Device ${device.name} (${device.id}) with no readings marked as inactive.`);
+          this.logger.log(
+            `Device ${device.name} (${device.id}) with no readings marked as inactive.`,
+          );
         }
       }
     }

@@ -17,7 +17,7 @@ export class MailerService {
 
     await this.nestMailerService.sendMail({
       from: 'Test <noreply@winkels.com.br>',
-      to: 'test@example.com',
+      to: 'hmaster.studio@gmail.com',
       subject: `Test Email`,
       text: message,
     });
@@ -26,11 +26,13 @@ export class MailerService {
   @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
   async sendMonthlyReports() {
     this.logger.log('Sending monthly reports...');
+    // keep track of execution time
+    const start = Date.now();
 
     const users = await this.prisma.user.findMany({
       where: {
         email: {
-          not: 'test@example.com',
+          not: 'hmaster.studio@gmail.com',
         },
       },
       include: {
@@ -68,8 +70,13 @@ export class MailerService {
           text: message,
         });
 
-        this.logger.log(`Sent monthly report to ${user.email} for mesh ${mesh.name}`);
+        this.logger.log(
+          `Sent monthly report to ${user.email} for mesh ${mesh.name}`,
+        );
       }
     }
+
+    const end = Date.now();
+    this.logger.log(`Monthly reports sent in ${end - start} ms`);
   }
 }
