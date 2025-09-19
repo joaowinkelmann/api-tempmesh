@@ -18,8 +18,14 @@ describe('MeshesController', () => {
         { provide: ZonesService, useValue: {} },
         { provide: DevicesService, useValue: {} },
         { provide: PrismaService, useValue: {} },
-        { provide: TilerService, useValue: { makeTilesFromImageBuffer: jest.fn() } },
-        { provide: UploaderService, useValue: { uploadDirectory: jest.fn(), getBaseUrl: jest.fn() } },
+        {
+          provide: TilerService,
+          useValue: { makeTilesFromImageBuffer: jest.fn() },
+        },
+        {
+          provide: UploaderService,
+          useValue: { uploadDirectory: jest.fn(), getBaseUrl: jest.fn() },
+        },
       ],
     }).compile();
 

@@ -9,7 +9,12 @@ describe('MeshesService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [MeshesService, { provide: PrismaService, useValue: {} }, { provide: TilerService, useValue: {} }, { provide: UploaderService, useValue: {} }],
+      providers: [
+        MeshesService,
+        { provide: PrismaService, useValue: {} },
+        { provide: TilerService, useValue: {} },
+        { provide: UploaderService, useValue: {} },
+      ],
     }).compile();
 
     service = module.get<MeshesService>(MeshesService);

@@ -12,7 +12,7 @@ export class UserProfileDto {
   email: string;
 
   @ApiProperty({
-    example: 'John Doe',
+    example: 'Kléber da Silva Santiago',
     description: 'Nome do usuário',
     required: false,
   })

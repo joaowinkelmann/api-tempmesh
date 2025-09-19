@@ -16,7 +16,7 @@ export class User {
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: 'John Doe' })
+  @ApiProperty({ example: 'Kléber da Silva Santiago' })
   @IsString()
   name: string;
 

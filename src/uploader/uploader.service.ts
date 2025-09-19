@@ -18,10 +18,9 @@ export class UploaderService {
     this.bucketName = process.env.OCI_BUCKET ?? '';
     this.region = process.env.OCI_REGION ?? '';
 
-    const privateKey =
-      process.env.OCI_PRIVATE_KEY_PATH
-        ? fs.readFileSync(path.resolve(process.env.OCI_PRIVATE_KEY_PATH), 'utf-8')
-        : (process.env.OCI_PRIVATE_KEY ?? '').replace(/\\n/g, '\n');
+    const privateKey = process.env.OCI_PRIVATE_KEY_PATH
+      ? fs.readFileSync(path.resolve(process.env.OCI_PRIVATE_KEY_PATH), 'utf-8')
+      : (process.env.OCI_PRIVATE_KEY ?? '').replace(/\\n/g, '\n');
 
     const hasOciConfig =
       !!process.env.OCI_TENANCY &&
@@ -37,7 +36,7 @@ export class UploaderService {
         'OCI configuration missing! UploaderService will run in NOOP mode.',
       );
       this.client = {
-        async putObject(_opts: any) {
+        putObject() {
           return { opcRequestId: 'noop' };
         },
       };
@@ -65,7 +64,7 @@ export class UploaderService {
         `Failed to initialize OCI client, switching to NOOP mode: ${String(e)}`,
       );
       this.client = {
-        async putObject(_opts: any) {
+        putObject() {
           return { opcRequestId: 'noop' };
         },
       };
@@ -99,7 +98,9 @@ export class UploaderService {
 
   async uploadDirectory(prefix: string, localDir: string): Promise<void> {
     const files = await this.walk(localDir);
-    this.logger.log(`Uploading ${files.length} tiles to OCI under ${prefix}/...`);
+    this.logger.log(
+      `Uploading ${files.length} tiles to OCI under ${prefix}/...`,
+    );
 
     for (const file of files) {
       const rel = path.relative(localDir, file).replace(/\\/g, '/');

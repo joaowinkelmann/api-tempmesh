@@ -19,8 +19,13 @@ export interface TileResult {
 export class TilerService {
   private readonly logger = new Logger(TilerService.name);
 
-  async makeTilesFromImageBuffer(buffer: Buffer, meshId?: string): Promise<TileResult> {
-    this.logger.debug(`Starting tile generation from image buffer: length=${buffer.length} meshId=${meshId}`);
+  async makeTilesFromImageBuffer(
+    buffer: Buffer,
+    meshId?: string,
+  ): Promise<TileResult> {
+    this.logger.debug(
+      `Starting tile generation from image buffer: length=${buffer.length} meshId=${meshId}`,
+    );
     // // Prefer a short, deterministic id when meshId is present; otherwise random
     // const id = meshId
     //   ? crypto.createHash('sha256').update(`mesh:${meshId}`).digest('hex').slice(0, 40)
@@ -61,7 +66,9 @@ export class TilerService {
     // World tiles per axis at z is 2^z. We want 2^z >= ceil(dim / tileSize).
     const tilesXNative = Math.max(1, Math.ceil(width / tileSize));
     const tilesYNative = Math.max(1, Math.ceil(height / tileSize));
-    const autoMaxZoom = Math.ceil(Math.log2(Math.max(tilesXNative, tilesYNative)));
+    const autoMaxZoom = Math.ceil(
+      Math.log2(Math.max(tilesXNative, tilesYNative)),
+    );
 
     // Always build up to a fixed max zoom (inclusive). Default is auto; override with MAP_MAX_ZOOM if numeric.
     const envMaxZoom = process.env.MAP_MAX_ZOOM;
@@ -74,7 +81,9 @@ export class TilerService {
       path.join(os.tmpdir(), `tempmesh-tiles-${id}-`),
     );
 
-    this.logger.debug(`Generating tiles up to maxZoom=${maxZoom} (levels 0..${maxZoom}), tileSize=${tileSize}`);
+    this.logger.debug(
+      `Generating tiles up to maxZoom=${maxZoom} (levels 0..${maxZoom}), tileSize=${tileSize}`,
+    );
 
     // Generate pyramid: z = 0..maxZoom (z=maxZoom uses original dimensions)
     for (let z = 0; z <= maxZoom; z++) {
@@ -105,9 +114,15 @@ export class TilerService {
 
       // Compute the minimal world tile range that intersects the image
       const minX = Math.max(0, Math.floor(leftWorldPx / tileSize));
-      const maxX = Math.min(worldTiles - 1, Math.ceil((leftWorldPx + rW) / tileSize) - 1);
+      const maxX = Math.min(
+        worldTiles - 1,
+        Math.ceil((leftWorldPx + rW) / tileSize) - 1,
+      );
       const minY = Math.max(0, Math.floor(topWorldPx / tileSize));
-      const maxY = Math.min(worldTiles - 1, Math.ceil((topWorldPx + rH) / tileSize) - 1);
+      const maxY = Math.min(
+        worldTiles - 1,
+        Math.ceil((topWorldPx + rH) / tileSize) - 1,
+      );
 
       const spanX = Math.max(0, maxX - minX + 1);
       const spanY = Math.max(0, maxY - minY + 1);
