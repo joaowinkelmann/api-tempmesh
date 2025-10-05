@@ -14,7 +14,7 @@ export class AppController {
   })
   getHello(@Res() res) {
     // Agora redireciona para a documentação em /docs
-    res.status(302).redirect('/tempmesh/api/docs');
+    res.status(302).redirect('/sensornest/api/docs');
   }
 
   // @Public()

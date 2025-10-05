@@ -78,7 +78,7 @@ export class TilerService {
         : Math.max(0, autoMaxZoom);
 
     const tmpDir = await fs.promises.mkdtemp(
-      path.join(os.tmpdir(), `tempmesh-tiles-${id}-`),
+      path.join(os.tmpdir(), `sensornest-tiles-${id}-`),
     );
 
     this.logger.debug(

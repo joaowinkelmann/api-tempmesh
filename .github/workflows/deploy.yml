@@ -1,4 +1,4 @@
-name: Tempmesh API Deploy
+name: SensorNest API Deploy
 
 on:
   push:

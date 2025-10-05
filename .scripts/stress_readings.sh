@@ -4,9 +4,9 @@
 set -e
 
 # Configuration
-LOGIN_URL="http://localhost:7771/tempmesh/api/auth/login"
-DEVICES_URL="http://localhost:7771/tempmesh/api/devices"
-READINGS_URL="http://localhost:7771/tempmesh/api/readings/add"
+LOGIN_URL="http://localhost:7771/sensornest/api/auth/login"
+DEVICES_URL="http://localhost:7771/sensornest/api/devices"
+READINGS_URL="http://localhost:7771/sensornest/api/readings/add"
 EMAIL="test@example.com"
 PASSWORD="password123"
 CONNECTIONS=1000

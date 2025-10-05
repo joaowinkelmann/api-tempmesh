@@ -1,5 +1,5 @@
 module.exports = {
-  name: "api-tempmesh", // Name of your application
+  name: "api-sensornest", // Name of your application
   script: "dist/src/main.js",
   interpreter: "bun", // Bun interpreter
   env: {

@@ -26,20 +26,20 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
 
-  app.setGlobalPrefix('tempmesh/api/');
+  app.setGlobalPrefix('sensornest/api/');
 
   const config = new DocumentBuilder()
-    .setTitle('Tempmesh API')
-    .setDescription('API specification for Tempmesh')
+    .setTitle('SensorNest API')
+    .setDescription('API specification for SensorNest')
     .setVersion('v0.1')
-    .setExternalDoc('OpenAPI JSON Format', '/tempmesh/api/docs-json')
+    .setExternalDoc('OpenAPI JSON Format', '/sensornest/api/docs-json')
     .addServer('https://winkels.com.br')
-    .setBasePath('/tempmesh/api')
+    .setBasePath('/sensornest/api')
     .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   // SwaggerModule.setup('docs', app, documentFactory);
-  SwaggerModule.setup('tempmesh/api/docs', app, documentFactory());
+  SwaggerModule.setup('sensornest/api/docs', app, documentFactory());
 
   await app.listen(process.env.APP_PORT || 3000, '0.0.0.0');
 }

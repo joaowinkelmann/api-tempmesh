@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 # Variables
-APP_NAME="api-tempmesh"
+APP_NAME="api-sensornest"
 APP_DIR="/var/www/html/$APP_NAME"
 LOG_FILE="$APP_DIR/halt-deployment.log"
 
