@@ -1,5 +1,4 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
-import type { Express } from 'express';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateMeshDto } from './dto/create-mesh.dto';
 import { UpdateMeshDto } from './dto/update-mesh.dto';
@@ -7,6 +6,7 @@ import { TilerService } from '../tiler/tiler.service';
 import { UploaderService } from '../uploader/uploader.service';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import { MultipartFile } from '@fastify/multipart';
 
 @Injectable()
 export class MeshesService {
@@ -57,7 +57,11 @@ export class MeshesService {
   }
 
   // Generates tiles and uploads them to OCI. Returns the Leaflet tile URL template.
-  async uploadMap(file: Express.Multer.File, userId: string, meshId: string) {
+  async uploadMap(
+    file: MultipartFile & { buffer: Buffer },
+    userId: string,
+    meshId: string,
+  ) {
     if (!file) {
       this.logger.warn('uploadMap: No file uploaded');
       throw new BadRequestException('No file uploaded');
@@ -68,8 +72,7 @@ export class MeshesService {
     }
 
     // Support both memory and disk storage
-    const buffer =
-      file.buffer ?? (file.path ? await fs.readFile(file.path) : undefined);
+    const buffer = file.buffer;
 
     if (!buffer) {
       this.logger.warn('uploadMap: empty file buffer');
@@ -88,13 +91,6 @@ export class MeshesService {
       await fs
         .rm(tmpDir, { recursive: true, force: true })
         .catch(() => undefined);
-      if (file.path) {
-        const dir = path.dirname(file.path);
-        await fs.rm(file.path, { force: true }).catch(() => undefined);
-        await fs
-          .rm(dir, { recursive: true, force: true })
-          .catch(() => undefined);
-      }
     }
 
     const base = this.uploader.getBaseUrl();

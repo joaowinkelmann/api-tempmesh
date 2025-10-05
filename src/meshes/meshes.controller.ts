@@ -8,10 +8,9 @@ import {
   Delete,
   Request,
   UseGuards,
-  UseInterceptors,
-  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
-import type { Express } from 'express';
+import * as fastify from 'fastify';
 import { MeshesService } from './meshes.service';
 import { CreateMeshDto } from './dto/create-mesh.dto';
 import { UpdateMeshDto } from './dto/update-mesh.dto';
@@ -30,7 +29,6 @@ import {
 } from '@nestjs/swagger';
 import { Mesh } from './entities/mesh.entity';
 import { Zone } from '../zones/entities/zone.entity';
-import { FileInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(AuthGuard)
 @ApiBearerAuth()
@@ -140,7 +138,6 @@ export class MeshesController {
   }
 
   @Post('upload-map')
-  @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary:
@@ -156,10 +153,38 @@ export class MeshesController {
     },
   })
   async uploadMap(
-    @UploadedFile() file: Express.Multer.File,
-    @Body('meshId') meshId: string,
-    @Request() req: ReqReturnDto,
+    @Request() req: fastify.FastifyRequest & { user: ReqReturnDto['user'] },
   ) {
-    return this.meshesService.uploadMap(file, req?.user?.id, meshId);
+    if (!req.isMultipart()) {
+      throw new BadRequestException('Request is not multipart');
+    }
+
+    let meshId: string | undefined;
+    let fileData: any;
+
+    const parts = req.parts();
+    for await (const part of parts) {
+      if (part.type === 'field' && part.fieldname === 'meshId') {
+        meshId = part.value as string;
+      } else if (part.type === 'file') {
+        fileData = part;
+      }
+    }
+
+    if (!fileData) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    if (!meshId) {
+      throw new BadRequestException('meshId is required');
+    }
+
+    const buffer = await fileData.toBuffer();
+    const file = {
+      ...fileData,
+      buffer,
+    };
+
+    return this.meshesService.uploadMap(file, req.user.id, meshId);
   }
 }

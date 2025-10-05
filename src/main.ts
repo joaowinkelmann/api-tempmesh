@@ -14,7 +14,16 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
-  await app.register(multipart as any);
+  await app.register(multipart as any, {
+    limits: {
+      fileSize: 1024 * 1024 * 5, // 5mb- max file size
+      fieldNameSize: 100, // 100 bytes- max field name size
+      fields: 10, // 10 files- max number of fields
+      fieldSize: 100, // 100 bytes- max field value size
+      files: 5, // 5 files- max number of files
+    },
+    attachFieldsToBody: true,
+  });
 
   app.useGlobalPipes(new ValidationPipe());
 

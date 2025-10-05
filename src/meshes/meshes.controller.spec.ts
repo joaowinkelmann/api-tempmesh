@@ -6,6 +6,8 @@ import { DevicesService } from '../devices/devices.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TilerService } from '../tiler/tiler.service';
 import { UploaderService } from '../uploader/uploader.service';
+import { AuthGuard } from '../auth/auth.guard';
+import { Reflector } from '@nestjs/core';
 
 describe('MeshesController', () => {
   let controller: MeshesController;
@@ -26,6 +28,11 @@ describe('MeshesController', () => {
           provide: UploaderService,
           useValue: { uploadDirectory: jest.fn(), getBaseUrl: jest.fn() },
         },
+        {
+          provide: AuthGuard,
+          useValue: { canActivate: jest.fn(() => true) },
+        },
+        Reflector,
       ],
     }).compile();
 
