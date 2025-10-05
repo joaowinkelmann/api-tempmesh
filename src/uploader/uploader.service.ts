@@ -7,7 +7,7 @@ import * as common from 'oci-common';
 @Injectable()
 export class UploaderService {
   private readonly logger = new Logger(UploaderService.name);
-  // Use a flexible type because in test/no-OCI environments we create a noop client
+
   private readonly client: any;
   private readonly namespaceName: string;
   private readonly bucketName: string;

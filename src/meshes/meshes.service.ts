@@ -59,9 +59,11 @@ export class MeshesService {
   // Generates tiles and uploads them to OCI. Returns the Leaflet tile URL template.
   async uploadMap(file: Express.Multer.File, userId: string, meshId: string) {
     if (!file) {
+      this.logger.warn('uploadMap: No file uploaded');
       throw new BadRequestException('No file uploaded');
     }
     if (!meshId) {
+      this.logger.warn('uploadMap: No meshId was provided');
       throw new BadRequestException('No meshId was provided');
     }
 
@@ -70,9 +72,10 @@ export class MeshesService {
       file.buffer ?? (file.path ? await fs.readFile(file.path) : undefined);
 
     if (!buffer) {
+      this.logger.warn('uploadMap: empty file buffer');
       throw new BadRequestException('Invalid upload: empty file buffer');
     } else {
-      this.logger.debug(`Uploaded file size: ${buffer.length} bytes`);
+      this.logger.debug(`uploadMap: Uploaded file size: ${buffer.length} bytes`);
     }
 
     const { tmpDir, maxZoom, prefix, ext } =
