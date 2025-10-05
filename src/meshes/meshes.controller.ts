@@ -9,8 +9,10 @@ import {
   Request,
   UseGuards,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import * as fastify from 'fastify';
+import { MultipartFile } from '@fastify/multipart';
 import { MeshesService } from './meshes.service';
 import { CreateMeshDto } from './dto/create-mesh.dto';
 import { UpdateMeshDto } from './dto/update-mesh.dto';
@@ -35,6 +37,7 @@ import { Zone } from '../zones/entities/zone.entity';
 @ApiTags('Meshes')
 @Controller('meshes')
 export class MeshesController {
+  private readonly logger = new Logger(MeshesController.name);
   constructor(
     private readonly meshesService: MeshesService,
     private readonly zonesService: ZonesService,
@@ -156,34 +159,41 @@ export class MeshesController {
     @Request() req: fastify.FastifyRequest & { user: ReqReturnDto['user'] },
   ) {
     if (!req.isMultipart()) {
+      this.logger.error('Request is not multipart');
       throw new BadRequestException('Request is not multipart');
     }
 
     let meshId: string | undefined;
-    let fileData: any;
+    let file: (MultipartFile & { buffer: Buffer }) | undefined;
 
+    this.logger.log('Processing multipart request for map upload...');
     const parts = req.parts();
     for await (const part of parts) {
+      this.logger.debug(
+        `Part received: type=${part.type}, fieldname=${part.fieldname}`,
+      );
       if (part.type === 'field' && part.fieldname === 'meshId') {
         meshId = part.value as string;
+        this.logger.log(`Found meshId: ${meshId}`);
       } else if (part.type === 'file') {
-        fileData = part;
+        this.logger.log(`Found file: ${part.filename}`);
+        const buffer = await part.toBuffer();
+        file = {
+          ...part,
+          buffer,
+        };
       }
     }
 
-    if (!fileData) {
+    if (!file) {
+      this.logger.error('File part was not found in the request.');
       throw new BadRequestException('No file uploaded');
     }
 
     if (!meshId) {
+      this.logger.error('meshId field was not found in the request.');
       throw new BadRequestException('meshId is required');
     }
-
-    const buffer = await fileData.toBuffer();
-    const file = {
-      ...fileData,
-      buffer,
-    };
 
     return this.meshesService.uploadMap(file, req.user.id, meshId);
   }

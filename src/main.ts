@@ -22,7 +22,6 @@ async function bootstrap() {
       fieldSize: 100, // 100 bytes- max field value size
       files: 5, // 5 files- max number of files
     },
-    attachFieldsToBody: true,
   });
 
   app.useGlobalPipes(new ValidationPipe());
