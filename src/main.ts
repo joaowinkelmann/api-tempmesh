@@ -14,7 +14,7 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
-  await app.register(multipart);
+  await app.register(multipart as any);
 
   app.useGlobalPipes(new ValidationPipe());
 
