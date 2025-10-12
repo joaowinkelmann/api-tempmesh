@@ -40,6 +40,14 @@ export class Mesh {
   @IsString()
   mapUrl?: string;
 
+  @IsOptional()
+  @IsNumber()
+  mapMaxZoom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  mapMinZoom?: number;
+
   @ApiProperty({ example: 'b7a5ad7e-0c2f-4c1b-93d1-b0f6f9d9c111' })
   @IsUUID()
   userId: string;

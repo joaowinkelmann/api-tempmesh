@@ -144,7 +144,7 @@ export class MeshesController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary:
-      'Faz upload de uma imagem de mapa, gera quadrantes (z/x/y.webp) e envia ao OCI Object Storage.',
+      'Faz upload de uma imagem de mapa, gera quadrantes (z/x/y.webp) e envia ao OCI Object Storage. Retorna também o nível mínimo e máximo de zoom suportados.',
   })
   @ApiBody({
     schema: {

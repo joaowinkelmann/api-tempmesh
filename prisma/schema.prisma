@@ -40,9 +40,10 @@ model Mesh {
   lat Float // Latitude
   lon Float // Longitude
 
-  // TODO: Deixar como opção mapa customizado
   // URL do mapa customizado, se houver, utilzando o padrão /{zoom}/{x}/{y}.png ou algo parecido
   mapUrl String? @map("map_url") // URL do mapa customizado, se houver
+  mapMaxZoom Int?   @map("map_max_zoom")
+  mapMinZoom Int?   @map("map_min_zoom")
 
   // Uma Mesh tem várias Zones
   zones Zone[]

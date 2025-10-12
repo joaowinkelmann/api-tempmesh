@@ -5,7 +5,6 @@ import { UpdateMeshDto } from './dto/update-mesh.dto';
 import { TilerService } from '../tiler/tiler.service';
 import { UploaderService } from '../uploader/uploader.service';
 import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
 import { MultipartFile } from '@fastify/multipart';
 
 @Injectable()
@@ -78,7 +77,9 @@ export class MeshesService {
       this.logger.warn('uploadMap: empty file buffer');
       throw new BadRequestException('Invalid upload: empty file buffer');
     } else {
-      this.logger.debug(`uploadMap: Uploaded file size: ${buffer.length} bytes`);
+      this.logger.debug(
+        `uploadMap: Uploaded file size: ${buffer.length} bytes`,
+      );
     }
 
     const { tmpDir, maxZoom, prefix, ext } =
@@ -98,16 +99,14 @@ export class MeshesService {
 
     this.logger.log(`Mounted map URL: ${mapUrl}`);
 
-    // If a meshId is passed, persist the mapUrl to that mesh (only if it belongs to the user)
     if (meshId && userId) {
       const mesh = await this.findOne(meshId, userId);
       if (mesh) {
         // let updated_mesh = await this.prisma.mesh.update({
         await this.prisma.mesh.update({
           where: { id: meshId },
-          data: { mapUrl },
+          data: { mapUrl, mapMinZoom: 0, mapMaxZoom: maxZoom },
         });
-        // this.logger.debug(`Updated mesh: ${JSON.stringify(updated_mesh)}`);
       } else {
         this.logger.warn(
           `Mesh ${meshId} not found for user ${userId}; not updating mapUrl`,

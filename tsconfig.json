@@ -23,7 +23,9 @@
     "noFallthroughCasesInSwitch": false
   },
     "include": [
-    "src/**/*"
+    "src/**/*",
+    "prisma.config.ts",
+    "app.e2e-spec.ts",
   ],
   "exclude": [
     "node_modules",
