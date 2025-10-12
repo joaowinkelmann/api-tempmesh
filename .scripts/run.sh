@@ -52,17 +52,14 @@ if ! command_exists pm2; then
   log "PM2 installed successfully"
 fi
 
-# Change to application directory
 cd $APP_DIR || handle_error "Directory $APP_DIR not found"
 log "Running script inside $APP_DIR"
 
-# Setup Node environment
 log "Setting up Node environment..."
 nvm install --lts || handle_error "Failed to install LTS Node version"
 nvm use --lts || handle_error "Failed to use LTS Node version"
 log "Using Node $(node -v)"
 
-# Update Bun and dependencies
 log "Updating Bun and dependencies..."
 bun upgrade || handle_error "Failed to upgrade Bun"
 log "Running Bun $(bun --revision)"
@@ -74,10 +71,12 @@ bunx prisma generate || handle_error "Failed to generate Prisma client"
 
 bun update || handle_error "Failed to update dependencies"
 
-# Build application
 log "Building application..."
 bun run build || handle_error "Build failed"
 log "Build completed successfully"
+
+log "Updating PM2 in memory..."
+pm2 update || handle_error "Failed to update PM2"
 
 # Manage PM2 process
 if pm2 show $APP_NAME &> /dev/null; then
@@ -88,7 +87,6 @@ else
   pm2 start pm2.config.cjs || handle_error "Failed to start application with PM2"
 fi
 
-# Save PM2 configuration and setup startup
 log "Saving PM2 configuration..."
 pm2 save || handle_error "Failed to save PM2 configuration"
 
