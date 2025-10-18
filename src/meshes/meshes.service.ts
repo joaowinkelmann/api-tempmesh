@@ -21,7 +21,7 @@ export class MeshesService {
       data: {
         ...createMeshDto,
         userId,
-        name: createMeshDto.name, // Ensure name is provided
+        name: createMeshDto.name,
       },
     });
   }
@@ -62,20 +62,20 @@ export class MeshesService {
     meshId: string,
   ) {
     if (!file) {
-      this.logger.warn('uploadMap: No file uploaded');
-      throw new BadRequestException('No file uploaded');
+      this.logger.warn('uploadMap: Nenhum arquivo fornecido');
+      throw new BadRequestException('Nenhum arquivo fornecido');
     }
     if (!meshId) {
-      this.logger.warn('uploadMap: No meshId was provided');
-      throw new BadRequestException('No meshId was provided');
+      this.logger.warn('uploadMap: Nenhum meshId fornecido');
+      throw new BadRequestException('Nenhum meshId fornecido');
     }
 
     // Support both memory and disk storage
     const buffer = file.buffer;
 
     if (!buffer) {
-      this.logger.warn('uploadMap: empty file buffer');
-      throw new BadRequestException('Invalid upload: empty file buffer');
+      this.logger.warn('uploadMap: buffer de arquivo vazio');
+      throw new BadRequestException('Buffer de arquivo vazio');
     } else {
       this.logger.debug(
         `uploadMap: Uploaded file size: ${buffer.length} bytes`,
@@ -88,7 +88,6 @@ export class MeshesService {
     try {
       await this.uploader.uploadDirectory(prefix, tmpDir);
     } finally {
-      // cleanup temp dir and uploaded file (when using disk storage)
       await fs
         .rm(tmpDir, { recursive: true, force: true })
         .catch(() => undefined);

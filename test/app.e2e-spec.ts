@@ -178,12 +178,12 @@ describe('App E2E', () => {
     await fsPromises.rm(fixturesDir, { recursive: true, force: true });
   });
 
-  it('redirects root (/) to docs (302)', async () => {
+  it('redireciona a raiz (/) para a documentação (302)', async () => {
     const res = await request(app.getHttpServer()).get('/');
     expect([301, 302]).toContain(res.status);
   });
 
-  it('logs in and obtains JWT', async () => {
+  it('autentica e obtém token JWT', async () => {
     const res = await request(app.getHttpServer())
       .post('/auth/login')
       .send({ email: userEmail, password: userPassword })
@@ -192,7 +192,7 @@ describe('App E2E', () => {
     accessToken = res.body.access_token;
   });
 
-  it('lists user devices', async () => {
+  it('lista os dispositivos do usuário', async () => {
     const res = await request(app.getHttpServer())
       .get('/devices')
       .set('Authorization', `Bearer ${accessToken}`)
@@ -202,7 +202,7 @@ describe('App E2E', () => {
     expect(worker).toBeDefined();
   });
 
-  it('adds sensor readings (1 valid, 1 unregistered MAC)', async () => {
+  it('adiciona leituras de sensores (1 válido, 1 MAC não registrado)', async () => {
     const payload = {
       data: [
         { mac: knownWorkerMac, temp: 25.4, hum: 60.1 },
@@ -220,7 +220,7 @@ describe('App E2E', () => {
     });
   });
 
-  it('deletes a reading by ID', async () => {
+  it('remove uma leitura pelo ID', async () => {
     const readings = await prisma.reading.findMany({
       where: {
         device: {
@@ -238,7 +238,7 @@ describe('App E2E', () => {
       .expect(200, { message: 'Leitura deletada com sucesso.' });
   });
 
-  it('fetches zones for mesh', async () => {
+  it('busca as Zones de uma Mesh', async () => {
     const res = await request(app.getHttpServer())
       .get(`/meshes/${meshId}/zones`)
       .set('Authorization', `Bearer ${accessToken}`)
@@ -248,7 +248,7 @@ describe('App E2E', () => {
     expect(zone).toBeDefined();
   });
 
-  it('updates a zone name', async () => {
+  it('atualiza o nome de uma Zone', async () => {
     const newName = 'Planalto Central Atualizado';
     const res = await request(app.getHttpServer())
       .patch(`/zones/${zoneId}`)
@@ -278,7 +278,7 @@ describe('App E2E', () => {
     }
   });
 
-  it('fetches devices by zone', async () => {
+  it('encontra dispositivos pela Zone', async () => {
     const res = await request(app.getHttpServer())
       .get(`/zones/${zoneId}/devices`)
       .set('Authorization', `Bearer ${accessToken}`)
@@ -289,7 +289,7 @@ describe('App E2E', () => {
     );
   });
 
-  it('fetches devices by mesh', async () => {
+  it('busca dispositivos pela Mesh', async () => {
     const res = await request(app.getHttpServer())
       .get(`/meshes/${meshId}/devices`)
       .set('Authorization', `Bearer ${accessToken}`)
@@ -297,7 +297,7 @@ describe('App E2E', () => {
     expect(res.body.map((d: any) => d.meshId)).toContain(meshId);
   });
 
-  it('finds device by MAC', async () => {
+  it('encontra um dispositivo pelo MAC', async () => {
     const res = await request(app.getHttpServer())
       .get(`/devices/mac/${controllerMac}`)
       .set('Authorization', `Bearer ${accessToken}`)
@@ -354,7 +354,7 @@ describe('App E2E', () => {
   //   expect(mesh?.mapUrl).toBe(body.mapUrl);
   // }, 10000); // Increase timeout to 10 seconds
 
-  it('registers a new user', async () => {
+  it('registra um novo usuário', async () => {
     const res = await request(app.getHttpServer())
       .post('/users/register')
       .send({ email: newUserEmail, password: newUserPassword, name: newUserName })
